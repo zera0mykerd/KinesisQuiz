@@ -30,7 +30,7 @@ Ideale anche per personale **non tecnico**: basta eseguire lo script per iniziar
 > - Sarà **disabilitato tutto** il resto (desktop, task manager, CMD, esecuzioni esterne, ecc.).
 > - Il computer sarà utilizzabile **esclusivamente** per il software della simulazione.
 >  
-> 🧪 **Eseguire lo script SOLO su macchine dedicate o in ambienti virtuali/test.**  
+> 🧪 **Eseguire lo script PRIMA su macchine dedicate o in ambienti virtuali/test e controllare se funzioni.**  
 > 💾 **È altamente consigliato eseguire un backup completo** prima dell'utilizzo.
 
 > ❌ **L'autore non si assume alcuna responsabilità** per eventuali danni, malfunzionamenti o perdite di dati.  
@@ -60,7 +60,7 @@ Questo progetto è rilasciato sotto licenza **Creative Commons BY-NC-SA 4.0**.
 - 👥 Attribuzione obbligatoria.
 - 📛 È severamente vietato attribuirsi la paternità o rivendere il software.
 
-> ✉️ Per richieste commerciali o distribuzioni personalizzate, contattare direttamente **Michele Caiazzo**.
+> ✉️ Per richieste commerciali o distribuzioni personalizzate, contattare direttamente **L'autore**.
 
 ---
 
