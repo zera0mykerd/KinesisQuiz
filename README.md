@@ -19,6 +19,9 @@ Con un **singolo click**, il sistema viene **convertito** in una modalità “es
 ### 👨‍💻 Semplice per Tutti  
 Ideale anche per personale **non tecnico**: basta eseguire lo script per iniziare la riconfigurazione.
 
+### 💨 Velocità estrema
+Lo script contiene anche impostazioni per ottimizzare la velocità di rete e di calcolo della CPU modificando le impostazioni a livello Kernel.
+
 ---
 
 ## 🚨 AVVISO IMPORTANTE
@@ -45,7 +48,8 @@ Ideale anche per personale **non tecnico**: basta eseguire lo script per iniziar
 - **Stabile** 🧱  
 - **Sicuro** 🔐  
 - **Totalmente chiuso e monitorato** 🔒  
-- **Dedicato alla simulazione d’esame** 📘  
+- **Dedicato alla simulazione d’esame** 📘
+- **Incentrato sulla velocità** 🏎️
 
 Ideale per autoscuole che vogliono offrire ai candidati un ambiente **controllato e inattaccabile**, simile a quello ufficiale.
 
@@ -72,12 +76,13 @@ Questo progetto è rilasciato sotto licenza **Creative Commons BY-NC-SA 4.0**.
 
 ---
 
-## ✅ In breve:
+## ✅ In breve (sintetizzando):
 
 > 🖥️ Script semplice.  
 > 🛡️ Sicurezza assoluta.  
 > 🚫 Nessuna distrazione.  
 > 🎯 Un solo obiettivo: simulare l'esame in totale controllo.
+> 🏆 Velocità impeccabile.
 
 ---
 
