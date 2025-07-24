@@ -261,6 +261,165 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProf
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 38 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v LargeSystemCache /t REG_DWORD /d 1 /f
 
+REM Ottimizzazione GPU
+:: Aumentare la priorità delle applicazioni grafiche
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Graphics" /v GpuPriority /t REG_DWORD /d 1 /f
+
+:: Disabilitare il V-Sync
+reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v EnableVSync /t REG_DWORD /d 0 /f
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v EnableVSync /t REG_DWORD /d 0 /f
+
+:: Forzare l'uso della GPU dedicata su laptop
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\DirectX" /v EnableDiscreteGPU /t REG_DWORD /d 1 /f
+
+:: Disabilitare la limitazione della frequenza della GPU e del consumo energetico
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Power" /v GpuFrequencyLimit /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Power" /v GpuPowerLimit /t REG_DWORD /d 1 /f
+
+:: Modificare le impostazioni di latenza della GPU
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Graphics" /v Latency /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Graphics" /v EnableHardwareAcceleration /t REG_DWORD /d 1 /f
+
+:: Togliere autodownclocking
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\PowerCfg" /v PerfBoostMode /t REG_DWORD /d 2 /f
+
+:: Allocazione massima memoria GPU
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Memory Management" /v UseSystemCache /t REG_DWORD /d 1 /f
+
+:: Disabilitazione Thermal Throttling
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\ThermalManagement" /v ThermalThrottle /t REG_DWORD /d 0 /f
+
+:: Forza uso GPU dedicata
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\DirectX" /v ForceDedicatedGPU /t REG_DWORD /d 1 /f
+
+:: Ottimizzazione memoria GPU
+reg add "HKEY_CURRENT_USER\Software\Microsoft\DirectX" /v UseAlternateMemory /t REG_DWORD /d 1 /f
+
+:: Disabilitazione effetti visivi
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v VisualFXSetting /t REG_DWORD /d 2 /f
+
+:: Ottimizzazione uso risorse hardware
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Multimedia\SystemProfile" /v ThreadPriority /t REG_DWORD /d 8 /f
+
+
+REM Ottimizzazione CPU
+:: Abilitare le prestazioni massime della CPU
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power" /v CsEnabled /t REG_DWORD /d 0 /f
+
+:: Disabilitare la modalità di risparmio energetico CPU (C-States)
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power" /v CStatesDisabled /t REG_DWORD /d 1 /f
+
+:: Abilitare la gestione avanzata delle prestazioni della CPU
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power" /v PowerThrottlingDisabled /t REG_DWORD /d 1 /f
+
+:: Ottimizzare le Risorse di Sistema per la CPU
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v SystemResponsiveness /t REG_DWORD /d 0 /f
+
+:: Forzare il massimo della frequenza della CPU, senza scendere sotto il massimo utilizzo
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power" /v PerProcessorPower /t REG_DWORD /d 1 /f
+
+:: Ottimizzare il comportamento della CPU sotto carico, massimizzare il Turbo Boost
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power" /v IntelTurboBoostEnabled /t REG_DWORD /d 1 /f
+
+:: Ottimizzare la gestione delle risorse CPU per una risposta rapida alle richieste di calcolo
+:: reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v NetworkThrottlingIndex /t REG_DWORD /d ffffffff /f
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v NetworkThrottlingIndex /t REG_DWORD /d 4294967295 /f
+
+:: Massimizzare l’utilizzo di tutte le risorse CPU per applicazioni pesanti
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 26 /f
+
+:: Ottimizzare la priorità per tutte le applicazioni che richiedono il massimo della CPU
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v BackgroundTaskProcessing /t REG_DWORD /d 0 /f
+
+:: Forzare Windows a usare tutte le risorse della CPU per la reattività nelle applicazioni ad alta intensità
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Graphics" /v ThreadPriority /t REG_DWORD /d 8 /f
+
+:: Forzare la CPU a non limitare mai le risorse in caso di utilizzo intenso
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power" /v PowerPolicyDefault /t REG_DWORD /d 0 /f
+
+:: Abilitare l'uso massimo della CPU per applicazioni grafiche e altre applicazioni in tempo reale
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v MediaPriority /t REG_DWORD /d 6 /f
+
+:: Ottimizzare la gestione del "Turbo Boost" per un boost massimo in applicazioni intensive
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power" /v TurboBoostMax /t REG_DWORD /d 3 /f
+
+:: Ottimizzare l'uso delle risorse CPU per la gestione delle risorse di sistema
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v TaskPriority /t REG_DWORD /d 6 /f
+
+:: Ottimizzare la gestione della memoria per ridurre i colli di bottiglia della CPU
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Memory Management" /v DisablePagingExecutive /t REG_DWORD /d 1 /f
+
+:: Ottimizzare la CPU per non ridurre mai la velocità sotto il massimo
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power" /v PerformanceMode /t REG_DWORD /d 1 /f
+
+:: Disabilitare la gestione automatica del risparmio energetico della CPU
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\PowerCfg" /v DisableAutomaticEnergySaving /t REG_DWORD /d 1 /f
+
+:: Ottimizzare la priorità di sistema per applicazioni di calcolo pesante
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v ProcessorAffinity /t REG_DWORD /d 1 /f
+
+:: Ottimizzare il supporto multi-threading per applicazioni che sfruttano molteplici core
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v MultiThreadedApplication /t REG_DWORD /d 1 /f
+
+:: Forzare l'utilizzo massimo della CPU su tutte le applicazioni
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power" /v DisableIdleCpuCores /t REG_DWORD /d 1 /f
+
+:: Ottimizzazione dei processi multi-core: disabilitare qualsiasi limitazione del core della CPU
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power" /v DisableCoreLimiting /t REG_DWORD /d 1 /f
+
+:: Disabilitare la gestione automatica della frequenza del processore
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power" /v ActivePowerScheme /t REG_DWORD /d 1 /f
+
+:: Aumentare la Priorità delle Applicazioni CPU-Intensive
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v TaskPriority /t REG_DWORD /d 6 /f
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v ProcessorAffinity /t REG_DWORD /d 6 /f
+
+
+REM Ottimizzazione RAM
+:: Disabilitare la compressione della memoria
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Compress" /v MemoryCompression /t REG_DWORD /d 0 /f
+
+:: Aumento priorità di accesso alla memoria
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisablePagingExecutive /t REG_DWORD /d 1 /f
+
+:: Disabilita gestione automatica memoria
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v LargeSystemCache /t REG_DWORD /d 1 /f
+
+:: Disattiva SuperPrefetch e Prefetch
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisableSuperfetch /t REG_DWORD /d 1 /f
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v EnablePrefetcher /t REG_DWORD /d 0 /f
+
+:: Abilita cache per sistema di RAM
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v LargeSystemCache /t REG_DWORD /d 1 /f
+
+:: Imposta timeout per gestione della memoria
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v MmDelayOnLowMemory /t REG_DWORD /d 1 /f
+
+:: Aumento dimensione cache per app
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v SystemPages /t REG_DWORD /d 100000 /f
+
+:: Ottimizzazione sistemi con più di 4GB di RAM
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisableLowMemoryCondition /t REG_DWORD /d 1 /f
+
+:: Cache più ampia per operazioni I/O
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v IoPageLockLimit /t REG_DWORD /d 16777216 /f
+
+
+
+REM Ottimizzazione Hard Disk
+:: Disabilitare la Deframmentazione Automatica
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\defragsvc" /v Start /t REG_DWORD /d 4 /f
+
+:: Ottimizza il sistema per SSD
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\storahci\Parameters" /v EnableTrimSupport /t REG_DWORD /d 1 /f
+
+:: Disabilitare l'indicizzazione di Windows su unità SSD/HDD
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WSearch" /v Start /t REG_DWORD /d 4 /f
+
+:: Abilitare la modalità msAHCI
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\msahci" /v Start /t REG_DWORD /d 0 /f
+
+
 
 REM Imposta le chiavi di registro per abilitare il contrasto elevato
 ::echo Attivazione del contrasto elevato...
@@ -1122,27 +1281,122 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v S
 
 echo Tema scuro attivato nel registro.
 
-echo Ottimizzazione della rete..
-
 REM Ottimizzazioni di rete per velocità massima
-netsh int tcp set global rss=enabled
-netsh int tcp set global netdma=enabled
-netsh int tcp set global dca=enabled
-netsh int tcp set global autotuninglevel=normal
-netsh int tcp set global ecncapability=enabled
-netsh int tcp set global timestamps=disabled
-netsh int tcp set global initialrto=2000
-netsh int tcp set global rsc=enabled
-reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v TcpAckFrequency /t REG_DWORD /d 1 /f
-reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v TCPNoDelay /t REG_DWORD /d 1 /f
-reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v Tcp1323Opts /t REG_DWORD /d 3 /f
-reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v DefaultTTL /t REG_DWORD /d 64 /f
+:: Script per ottimizzare stack TCP/IP e rete su Windows
+:: echo Applicazione dei comandi NETSH...
+:: netsh int tcp set global rss=enabled
+:: netsh int tcp set global netdma=disabled
+:: netsh int tcp set global dca=disabled
+:: netsh int tcp set global autotuninglevel=normal
+:: netsh int tcp set global ecncapability=disabled
+:: netsh int tcp set global timestamps=disabled
+:: netsh int tcp set global initialrto=2000
+:: netsh int tcp set global rsc=enabled
+:: netsh int tcp set heuristics disabled
+:: PRIORITÀ PROTOCOLLI
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" /v LocalPriority /t REG_DWORD /d 4 /f
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" /v HostsPriority /t REG_DWORD /d 5 /f
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" /v DnsPriority /t REG_DWORD /d 6 /f
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" /v NetbtPriority /t REG_DWORD /d 7 /f
+:: DISATTIVAZIONE RISERVA BANDA QoS
+:: reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Psched" /v NonBestEffortLimit /t REG_DWORD /d 0 /f
+:: DISATTIVAZIONE NLA
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\QoS" /v "Do not use NLA" /t REG_SZ /d 1 /f
+:: PRESTAZIONI MULTIMEDIALI
+:: reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v NetworkThrottlingIndex /t REG_DWORD /d 4294967295 /f
+:: reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v SystemResponsiveness /t REG_DWORD /d 0 /f
+:: OTTIMIZZAZIONI SERVER LAN
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" /v Size /t REG_DWORD /d 3 /f
+:: CACHE DI SISTEMA
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v LargeSystemCache /t REG_DWORD /d 1 /f
+:: TCP/IP AVANZATO
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v TcpAckFrequency /t REG_DWORD /d 1 /f
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v TCPNoDelay /t REG_DWORD /d 1 /f
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v Tcp1323Opts /t REG_DWORD /d 3 /f
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v DefaultTTL /t REG_DWORD /d 64 /f
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v MaxUserPort /t REG_DWORD /d 65534 /f
+:: reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v TcpTimedWaitDelay /t REG_DWORD /d 30 /f
+:: echo.
+:: echo Rete ottimizzata.
+:: echo.
+echo.
+echo.
+echo.
+echo    x--------------x
+echo    I.------------.I
+echo    II            II
+echo    II            II
+echo    II            II
+echo    II            II
+echo    Ix------------xI
+echo    x-..--------..-x
+echo    .--------------.
+echo   / /============\ \
+echo  / /==============\ \
+echo /____________________\
+echo \____________________/
+echo.
+echo.
+
+
+setlocal
+
+set /p zxq9_input="Vuoi impostare la ottimizzazione di rete? (s/n): "
+if /i "%zxq9_input%"=="s" (
+    echo Eseguo il codice...
+    
+	netsh int tcp set global rss=enabled
+    netsh int tcp set global netdma=disabled
+    netsh int tcp set global dca=disabled
+    netsh int tcp set global autotuninglevel=normal
+    netsh int tcp set global ecncapability=disabled
+    netsh int tcp set global timestamps=disabled
+    netsh int tcp set global initialrto=2000
+    netsh int tcp set global rsc=enabled
+
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" /v LocalPriority /t REG_DWORD /d 4 /f
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" /v HostsPriority /t REG_DWORD /d 5 /f
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" /v DnsPriority /t REG_DWORD /d 6 /f
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" /v NetbtPriority /t REG_DWORD /d 7 /f
+
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Psched" /v NonBestEffortLimit /t REG_DWORD /d 0 /f
+
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\QoS" /v "Do not use NLA" /t REG_SZ /d 1 /f
+
+    reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v NetworkThrottlingIndex /t REG_DWORD /d 4294967295 /f
+    reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v SystemResponsiveness /t REG_DWORD /d 0 /f
+
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" /v Size /t REG_DWORD /d 3 /f
+
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v LargeSystemCache /t REG_DWORD /d 1 /f
+
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v TcpAckFrequency /t REG_DWORD /d 1 /f
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v TCPNoDelay /t REG_DWORD /d 1 /f
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v Tcp1323Opts /t REG_DWORD /d 3 /f
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v DefaultTTL /t REG_DWORD /d 64 /f
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v MaxUserPort /t REG_DWORD /d 65534 /f
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v TcpTimedWaitDelay /t REG_DWORD /d 30 /f
+    
+    echo Fatto!
+)
+
+echo Continuo con il resto...
+
+endlocal
 
 
 echo.
-echo Rete ottimizzata.
+
+echo.
+echo.
+echo.
+echo.
 echo.
 
+
+echo.
+echo.
+echo.
 REM Ottimizzazioni memoria estreme
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisablePagingExecutive /t REG_DWORD /d 1 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v LargeSystemCache /t REG_DWORD /d 1 /f
@@ -1848,7 +2102,42 @@ icacls "C:\Windows\System32\WindowsPowerShell\v1.0\powershell_ise.exe" /deny Eve
 icacls "C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell_ise.exe" /deny Everyone:(X)
 icacls "C:\Program Files\PowerShell\7\pwsh.exe" /deny Everyone:(X)
 icacls "C:\Program Files (x86)\PowerShell\7\pwsh.exe" /deny Everyone:(X)
+echo.
+echo.
+echo.
 
+echo                          ##     
+echo              ###        #####   
+echo            #####         #####  
+echo          #######    ###   ##### 
+echo        #########   #####   #####
+echo ################    #####   ####
+echo ################     ####   ####
+echo ################     ####   ####
+echo ################     ####   ####
+echo ################    #####   ####
+echo       ##########    ####   #####
+echo          #######    ###   ##### 
+echo            #####         #####  
+echo              ###         ####   
+echo                          ###     
+setlocal
+set /p userChoice="Vuoi disattivare l'audio? (s per sì, qualsiasi altro tasto per no): "
+if /i "%userChoice%"=="s" (
+    echo Disattivazione dell'audio in corso...
+    sc config AudioSrv start= disabled
+    sc stop AudioSrv
+    sc config AudioEndpointBuilder start= disabled
+    sc stop AudioEndpointBuilder
+    echo Audio disattivato.
+) else (
+    echo Blocco di codice saltato.
+)
+endlocal
+
+echo.
+echo.
+echo.
 
 echo.
 color 04
@@ -2167,10 +2456,6 @@ sc stop SmartcardSvr
 devcon disable USBSTOR*
 pnputil /remove-device USBSTOR*
 REM Blocco microfono-webcam
-sc config AudioSrv start= disabled
-sc stop AudioSrv
-sc config AudioEndpointBuilder start= disabled
-sc stop AudioEndpointBuilder
 sc config FrameServer start= disabled
 sc stop FrameServer
 reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam" /v Value /t REG_SZ /d "Deny" /f
